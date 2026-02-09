@@ -1077,14 +1077,44 @@ RemoveFaintedPlayerMon:
 	jr nc, .carelessTrainer ; if so, punish the player for being careless, as they shouldn't be fighting a very high leveled trainer with such a level difference
 .regularFaint
 	farcall_ModifyPikachuHappiness PIKAHAPPY_FAINTED
-	ret
+	jr .handleRanAway
 .carelessTrainer
 	farcall_ModifyPikachuHappiness PIKAHAPPY_CARELESSTRAINER
+	; fall through
+.handleRanAway
+	call HandleFaintedPlayerMonRanAway
 	ret
 
 PlayerMonFaintedText:
 	text_far _PlayerMonFaintedText
 	text_end
+
+PlayerMonRanAwayBadTrainingText:
+	text_far _PokemonRanAwayBadTrainingText
+	text_end
+
+HandleFaintedPlayerMonRanAway:
+	ld a, [wPlayerMonNumber]
+	ld [wWhichPokemon], a
+	ld hl, wPartyMonNicks
+	call GetPartyMonName
+	ld hl, PlayerMonRanAwayBadTrainingText
+	call PrintText
+	xor a
+	ld [wRemoveMonFromBox], a
+	call RemovePokemon
+	ld a, [wPartyCount]
+	and a
+	ret z
+	dec a
+	ld b, a
+	ld a, [wPlayerMonNumber]
+	cp b
+	jr c, .done
+	ld a, b
+	ld [wPlayerMonNumber], a
+.done
+	ret
 
 ; asks if you want to use next mon
 ; stores whether you ran in C flag
