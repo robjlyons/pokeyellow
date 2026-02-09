@@ -1961,6 +1961,9 @@ wMapPalOffset:: db
 
 wCurMap:: db
 
+; Flags for whether the first wild encounter catch opportunity was used per map.
+wMapEncounterCatchFlags:: flag_array NUM_MAPS
+
 ; pointer to the upper left corner of the current view in the tile block map
 wCurrentTileBlockMapViewPointer:: dw
 
