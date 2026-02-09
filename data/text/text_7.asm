@@ -16,7 +16,7 @@ _PokemonFaintedText::
 _PokemonRanAwayBadTrainingText::
 	text_ram wNameBuffer
 	text_start
-	line "ran away due"
+	line "Pokemon ran away due"
 	cont "to your bad"
 	cont "training!"
 	prompt
