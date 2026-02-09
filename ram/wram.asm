@@ -1426,6 +1426,9 @@ wCurOpponent:: db
 ; in safari battle, this is 2
 wBattleType:: db
 
+; nonzero if the current wild encounter is allowed to be caught
+wWildEncounterCanCatch:: db
+
 ; bits 0-6: Effectiveness
    ;  $0 = immune
    ;  $5 = not very effective
