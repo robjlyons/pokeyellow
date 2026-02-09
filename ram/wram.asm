@@ -1426,6 +1426,9 @@ wCurOpponent:: db
 ; in safari battle, this is 2
 wBattleType:: db
 
+; nonzero if the current wild encounter is allowed to be caught
+wWildEncounterCanCatch:: db
+
 ; bits 0-6: Effectiveness
    ;  $0 = immune
    ;  $5 = not very effective
@@ -1957,6 +1960,9 @@ wMapMusicROMBank:: db
 wMapPalOffset:: db
 
 wCurMap:: db
+
+; Flags for whether the first wild encounter catch opportunity was used per map.
+wMapEncounterCatchFlags:: flag_array NUM_MAPS
 
 ; pointer to the upper left corner of the current view in the tile block map
 wCurrentTileBlockMapViewPointer:: dw
