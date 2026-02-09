@@ -86,7 +86,7 @@ ApplyOutOfBattlePoisonDamage:
 	ld hl, wWhichPokemon
 	inc [hl]
 	pop hl
-	jr .applyDamageLoop
+	jp .applyDamageLoop
 .restartAfterRemoval
 	ld a, [wPartyCount]
 	and a
@@ -107,7 +107,7 @@ ApplyOutOfBattlePoisonDamage:
 	ld bc, PARTYMON_STRUCT_LENGTH
 	ld a, [wWhichPokemon]
 	call AddNTimes
-	jr .applyDamageLoop
+	jp .applyDamageLoop
 .applyDamageLoopDone
 	ld hl, wPartyMon1Status
 	ld a, [wPartyCount]
