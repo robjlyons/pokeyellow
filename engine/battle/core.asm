@@ -159,14 +159,16 @@ StartBattle:
 	ld a, [wBattleType]
 	and a ; is it a normal battle?
 	jr nz, .skipWildCatchInit
+	call EnableEncounterCatchSRAM_Battle
 	ld a, [wCurMap]
 	ld c, a
 	ld b, FLAG_TEST
-	ld hl, wMapEncounterCatchFlags
+	ld hl, sMapEncounterCatchFlags
 	predef FlagActionPredef
+	call DisableEncounterCatchSRAM_Battle
 	ld a, c
 	and a
-	jr nz, .skipWildCatchInit
+	jr z, .skipWildCatchInit
 	ld a, 1
 	ld [wWildEncounterCanCatch], a
 .skipWildCatchInit
@@ -1154,11 +1156,29 @@ MarkWildEncounterCatchUsed:
 	ret z
 	ld a, [wCurMap]
 	ld c, a
-	ld b, FLAG_SET
-	ld hl, wMapEncounterCatchFlags
+	call EnableEncounterCatchSRAM_Battle
+	ld b, FLAG_RESET
+	ld hl, sMapEncounterCatchFlags
 	predef FlagActionPredef
+	call DisableEncounterCatchSRAM_Battle
 	xor a
 	ld [wWildEncounterCanCatch], a
+	ret
+
+EnableEncounterCatchSRAM_Battle:
+	ld a, BMODE_ADVANCED
+	ld [rBMODE], a
+	ld a, RAMG_SRAM_ENABLE
+	ld [rRAMG], a
+	xor a
+	ld [rRAMB], a
+	ret
+
+DisableEncounterCatchSRAM_Battle:
+	ld a, BMODE_SIMPLE
+	ld [rBMODE], a
+	ASSERT RAMG_SRAM_DISABLE == BMODE_SIMPLE
+	ld [rRAMG], a
 	ret
 
 ; asks if you want to use next mon

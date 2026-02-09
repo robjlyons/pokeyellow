@@ -2649,13 +2649,31 @@ MarkWildEncounterCatchUsedItem:
 	ld a, [wWildEncounterCanCatch]
 	and a
 	ret z
+	call EnableEncounterCatchSRAM_Item
 	ld a, [wCurMap]
 	ld c, a
-	ld b, FLAG_SET
-	ld hl, wMapEncounterCatchFlags
+	ld b, FLAG_RESET
+	ld hl, sMapEncounterCatchFlags
 	predef FlagActionPredef
+	call DisableEncounterCatchSRAM_Item
 	xor a
 	ld [wWildEncounterCanCatch], a
+	ret
+
+EnableEncounterCatchSRAM_Item:
+	ld a, BMODE_ADVANCED
+	ld [rBMODE], a
+	ld a, RAMG_SRAM_ENABLE
+	ld [rRAMG], a
+	xor a
+	ld [rRAMB], a
+	ret
+
+DisableEncounterCatchSRAM_Item:
+	ld a, BMODE_SIMPLE
+	ld [rBMODE], a
+	ASSERT RAMG_SRAM_DISABLE == BMODE_SIMPLE
+	ld [rRAMG], a
 	ret
 
 NoCyclingAllowedHereText:
