@@ -2158,6 +2158,7 @@ wCurrentBoxNum:: db
 wNumHoFTeams:: db
 
 wUnusedMapVariable:: db
+DEF wWildEncounterCanCatch EQU wUnusedMapVariable
 
 wPlayerCoins:: dw ; BCD
 
