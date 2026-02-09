@@ -2157,7 +2157,8 @@ wCurrentBoxNum:: db
 ; number of HOF teams
 wNumHoFTeams:: db
 
-wUnusedMapVariable:: db
+wWildEncounterCanCatch:: db
+DEF wUnusedMapVariable EQU wWildEncounterCanCatch
 
 wPlayerCoins:: dw ; BCD
 
