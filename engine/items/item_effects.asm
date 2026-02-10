@@ -112,6 +112,14 @@ ItemUseBall:
 	dec a
 	jp nz, ThrowBallAtTrainerMon
 
+	ld a, [wBattleType]
+	and a
+	jr nz, .skipEncounterLimitCheck
+	ld a, [wWildEncounterCanCatch]
+	and a
+	jp z, ThrowBallAtUsedEncounter
+.skipEncounterLimitCheck
+
 ; If this is for the old man battle, skip checking if the party & box are full.
 	ld a, [wBattleType]
 	cp BATTLE_TYPE_OLD_MAN
@@ -523,6 +531,7 @@ ItemUseBall:
 	ld [hl], a
 	ld a, [wEnemyMonSpecies]
 	ld [wCapturedMonSpecies], a
+	call MarkWildEncounterCatchUsedItem
 	ld [wCurPartySpecies], a
 	ld [wPokedexNum], a
 	ld a, [wBattleType]
@@ -2579,6 +2588,17 @@ ThrowBallAtTrainerMon:
 	call PrintText
 	jr RemoveUsedItem
 
+ThrowBallAtUsedEncounter:
+	call RunDefaultPaletteCommand
+	call LoadScreenTilesFromBuffer1 ; restore saved screen
+	call Delay3
+	ld a, TOSS_ANIM
+	ld [wAnimationID], a
+	predef MoveAnimation ; do animation
+	ld hl, ThrowBallAtUsedEncounterText
+	call PrintText
+	jr RemoveUsedItem
+
 NoCyclingAllowedHere:
 	ld hl, NoCyclingAllowedHereText
 	jr ItemUseFailed
@@ -2614,6 +2634,47 @@ ThrowBallAtTrainerMonText1:
 ThrowBallAtTrainerMonText2:
 	text_far _ThrowBallAtTrainerMonText2
 	text_end
+
+ThrowBallAtUsedEncounterText:
+	text_far _ThrowBallAtUsedEncounterText
+	text_end
+
+MarkWildEncounterCatchUsedItem:
+	ld a, [wBattleType]
+	and a
+	ret nz
+	ld a, [wIsInBattle]
+	dec a
+	ret nz
+	ld a, [wWildEncounterCanCatch]
+	and a
+	ret z
+	call EnableEncounterCatchSRAM_Item
+	ld a, [wCurMap]
+	ld c, a
+	ld b, FLAG_RESET
+	ld hl, sMapEncounterCatchFlags
+	predef FlagActionPredef
+	call DisableEncounterCatchSRAM_Item
+	xor a
+	ld [wWildEncounterCanCatch], a
+	ret
+
+EnableEncounterCatchSRAM_Item:
+	ld a, BMODE_ADVANCED
+	ld [rBMODE], a
+	ld a, RAMG_SRAM_ENABLE
+	ld [rRAMG], a
+	xor a
+	ld [rRAMB], a
+	ret
+
+DisableEncounterCatchSRAM_Item:
+	ld a, BMODE_SIMPLE
+	ld [rBMODE], a
+	ASSERT RAMG_SRAM_DISABLE == BMODE_SIMPLE
+	ld [rRAMG], a
+	ret
 
 NoCyclingAllowedHereText:
 	text_far _NoCyclingAllowedHereText
