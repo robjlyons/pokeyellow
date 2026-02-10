@@ -268,7 +268,7 @@ StartBattle:
 	call SaveScreenTilesToBuffer1
 	ld a, [wWhichPokemon]
 	ld c, a
-	ld b, FLAG_SET
+	ld b, FLAG_TEST
 	push bc
 	ld hl, wPartyGainExpFlags
 	predef FlagActionPredef
@@ -956,6 +956,12 @@ ReplaceFaintedEnemyMon:
 	ret
 
 TrainerBattleVictory:
+	ld a, [wCurOpponent]
+	cp OPP_RIVAL1
+	jr nz, .notRival1Battle
+	xor a
+	ld [wWildEncounterCanCatch], a
+.notRival1Battle
 	call EndLowHealthAlarm
 	ld b, MUSIC_DEFEATED_GYM_LEADER
 	ld a, [wGymLeaderNo]
@@ -1106,14 +1112,47 @@ RemoveFaintedPlayerMon:
 	jr nc, .carelessTrainer ; if so, punish the player for being careless, as they shouldn't be fighting a very high leveled trainer with such a level difference
 .regularFaint
 	farcall_ModifyPikachuHappiness PIKAHAPPY_FAINTED
-	ret
+	jr .handleRanAway
 .carelessTrainer
 	farcall_ModifyPikachuHappiness PIKAHAPPY_CARELESSTRAINER
+	; fall through
+.handleRanAway
+	call HandleFaintedPlayerMonRanAway
 	ret
 
 PlayerMonFaintedText:
 	text_far _PlayerMonFaintedText
 	text_end
+
+PlayerMonRanAwayBadTrainingText:
+	text_far _PokemonRanAwayBadTrainingText
+	text_end
+
+HandleFaintedPlayerMonRanAway:
+	ld a, [wPartyCount]
+	cp 1
+	ret z ; don't remove the final party mon to avoid invalid 0-mon party state
+	ld a, [wPlayerMonNumber]
+	ld [wWhichPokemon], a
+	ld hl, wPartyMonNicks
+	call GetPartyMonName
+	ld hl, PlayerMonRanAwayBadTrainingText
+	call PrintText
+	xor a
+	ld [wRemoveMonFromBox], a
+	call RemovePokemon
+	ld a, [wPartyCount]
+	and a
+	ret z
+	dec a
+	ld b, a
+	ld a, [wPlayerMonNumber]
+	cp b
+	jr c, .done
+	ld a, b
+	ld [wPlayerMonNumber], a
+.done
+	ret
 
 MarkWildEncounterCatchUsed:
 	ld a, [wBattleType]
@@ -1498,9 +1537,7 @@ EnemySendOutFirstMon:
 	ld a, [wLinkState]
 	cp LINK_STATE_BATTLING
 	jr z, .next4
-	ld a, [wOptions]
-	bit BIT_BATTLE_SHIFT, a
-	jr nz, .next4
+	jr .next4 ; battle style is forced to SET
 	ld hl, TrainerAboutToUseText
 	call PrintText
 	hlcoord 0, 7
