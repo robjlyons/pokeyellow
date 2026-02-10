@@ -1196,15 +1196,15 @@ EnsureEncounterCatchFlagsInitialized:
 	ret
 
 EnableEncounterCatchSRAM_Battle:
-    ld a, RAMG_SRAM_ENABLE       ; usually $0A
-    ld [rRAMG], a
-    ld a, BANK(sMapEncounterCatchFlags)
-    ld [rRAMB], a                ; RAM bank select (MBC1/MBC3/MBC5)
+    ld a, $0A
+    ld [$0000], a      ; RAM enable
+    xor a
+    ld [$4000], a      ; RAM bank 0 (safe default)
     ret
 
 DisableEncounterCatchSRAM_Battle:
     xor a
-    ld [rRAMG], a                ; disable SRAM
+    ld [$0000], a      ; RAM disable
     ret
 
 ; asks if you want to use next mon
