@@ -240,7 +240,7 @@ WRAM0
 	"Main Data"
 	"Current Box Data"
 	"CGB Palette Data"
-	org $df35
+	org $df15
 	"Stack"
 VRAM $0
 	"VRAM"
