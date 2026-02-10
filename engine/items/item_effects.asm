@@ -2652,7 +2652,7 @@ MarkWildEncounterCatchUsedItem:
 	call EnableEncounterCatchSRAM_Item
 	ld a, [wCurMap]
 	ld c, a
-	ld b, FLAG_RESET
+	ld b, FLAG_SET
 	ld hl, sMapEncounterCatchFlags
 	predef FlagActionPredef
 	call DisableEncounterCatchSRAM_Item
