@@ -1179,7 +1179,7 @@ EnableEncounterCatchSRAM_Battle:
 	ld [rBMODE], a
 	ld a, RAMG_SRAM_ENABLE
 	ld [rRAMG], a
-	xor a
+	ld a, BANK(sMapEncounterCatchFlags)
 	ld [rRAMB], a
 	ret
 
