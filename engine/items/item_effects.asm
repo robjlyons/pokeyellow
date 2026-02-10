@@ -2650,7 +2650,7 @@ MarkWildEncounterCatchUsedItem:
 	ld a, [wWildEncounterCanCatch]
 	and a
 	ret z
-	call EnableEncounterCatchSRAM_Item
+	call 
 	ld a, [wCurMap]
 	ld c, a
 	ld b, FLAG_RESET
@@ -2662,20 +2662,16 @@ MarkWildEncounterCatchUsedItem:
 	ret
 
 EnableEncounterCatchSRAM_Item:
-	ld a, BMODE_ADVANCED
-	ld [rBMODE], a
-	ld a, RAMG_SRAM_ENABLE
-	ld [rRAMG], a
-	ld a, BANK(sMapEncounterCatchFlags)
-	ld [rRAMB], a
-	ret
+    ld a, RAMG_SRAM_ENABLE
+    ld [rRAMG], a
+    ld a, BANK(sMapEncounterCatchFlags)
+    ld [rRAMB], a
+    ret
 
 DisableEncounterCatchSRAM_Item:
-	ld a, BMODE_SIMPLE
-	ld [rBMODE], a
-	ASSERT RAMG_SRAM_DISABLE == BMODE_SIMPLE
-	ld [rRAMG], a
-	ret
+    xor a
+    ld [rRAMG], a
+    ret
 
 NoCyclingAllowedHereText:
 	text_far _NoCyclingAllowedHereText
