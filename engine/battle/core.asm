@@ -168,7 +168,7 @@ StartBattle:
 	call DisableEncounterCatchSRAM_Battle
 	ld a, c
 	and a
-	jr z, .skipWildCatchInit
+	jr nz, .skipWildCatchInit
 	ld a, 1
 	ld [wWildEncounterCanCatch], a
 .skipWildCatchInit
@@ -1122,6 +1122,9 @@ PlayerMonRanAwayBadTrainingText:
 	text_end
 
 HandleFaintedPlayerMonRanAway:
+	ld a, [wPartyCount]
+	cp 1
+	ret z ; don't remove the final party mon to avoid invalid 0-mon party state
 	ld a, [wPlayerMonNumber]
 	ld [wWhichPokemon], a
 	ld hl, wPartyMonNicks
@@ -1157,7 +1160,7 @@ MarkWildEncounterCatchUsed:
 	ld a, [wCurMap]
 	ld c, a
 	call EnableEncounterCatchSRAM_Battle
-	ld b, FLAG_RESET
+	ld b, FLAG_SET
 	ld hl, sMapEncounterCatchFlags
 	predef FlagActionPredef
 	call DisableEncounterCatchSRAM_Battle

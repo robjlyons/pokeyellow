@@ -153,6 +153,9 @@ PoisonFaintedMonRanAwayText:
 	text_end
 
 HandlePoisonFaintedMonRanAway:
+	ld a, [wPartyCount]
+	cp 1
+	ret z ; don't remove the final party mon to avoid invalid 0-mon party state
 	ld hl, wPartyMonNicks
 	call GetPartyMonName
 	ld hl, PoisonFaintedMonRanAwayText

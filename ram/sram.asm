@@ -26,6 +26,7 @@ sMainDataCheckSum:: db
 ; Flags for whether the first wild encounter catch opportunity was used per map.
 sMapEncounterCatchFlags:: flag_array NUM_MAPS
 
+
 ; The PC boxes will not fit into one SRAM bank,
 ; so they use multiple SECTIONs
 DEF box_n = 0
