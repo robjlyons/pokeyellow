@@ -2650,7 +2650,7 @@ MarkWildEncounterCatchUsedItem:
 	ld a, [wWildEncounterCanCatch]
 	and a
 	ret z
-	call 
+	call EnableEncounterCatchSRAM_Item
 	ld a, [wCurMap]
 	ld c, a
 	ld b, FLAG_RESET
