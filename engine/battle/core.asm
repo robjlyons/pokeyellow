@@ -1195,14 +1195,16 @@ EnsureEncounterCatchFlagsInitialized:
 
 EnableEncounterCatchSRAM_Battle:
     ld a, $0A
-    ld [$0000], a      ; RAM enable
-    xor a
-    ld [$4000], a      ; RAM bank 0 (safe default)
+    ld [$0000], a                 ; enable SRAM
+    ld a, $01
+    ld [$6000], a                 ; MBC1: RAM banking mode (harmless on others)
+    ld a, BANK(sMapEncounterCatchFlags)
+    ld [$4000], a                 ; select SRAM bank that holds the flags
     ret
 
 DisableEncounterCatchSRAM_Battle:
     xor a
-    ld [$0000], a      ; RAM disable
+    ld [$0000], a                 ; disable SRAM
     ret
 
 ; asks if you want to use next mon
