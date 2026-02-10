@@ -1958,6 +1958,9 @@ wMapPalOffset:: db
 
 wCurMap:: db
 
+; Flags for whether the first wild encounter catch opportunity was used per map.
+wMapEncounterCatchFlags:: flag_array NUM_MAPS
+
 ; pointer to the upper left corner of the current view in the tile block map
 wCurrentTileBlockMapViewPointer:: dw
 
@@ -2524,7 +2527,7 @@ wBGPPalsBuffer:: ds NUM_ACTIVE_PALS * PAL_SIZE
 SECTION "Stack", WRAM0
 
 ; the stack grows downward
-	ds $eb - 1
+	ds $cb - 1
 wStack:: db
 
 ENDSECTION
