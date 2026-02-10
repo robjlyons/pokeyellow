@@ -1177,9 +1177,9 @@ MarkWildEncounterCatchUsed:
 
 EnsureEncounterCatchFlagsInitialized:
 	call EnableEncounterCatchSRAM_Battle
-	ld hl, sMapEncounterCatchFlags + (NUM_MAPS + 7) / 8 - 1
-	bit 7, [hl]
-	jr nz, .done ; marker bit means the flag array was initialized
+	ld a, [sMapEncounterCatchFlagsInitialized]
+	cp $a5
+	jr z, .done ; explicit initialization marker
 	ld hl, sMapEncounterCatchFlags
 	ld b, (NUM_MAPS + 7) / 8
 	ld a, $ff
@@ -1187,6 +1187,8 @@ EnsureEncounterCatchFlagsInitialized:
 	ld [hli], a
 	dec b
 	jr nz, .fillLoop
+	ld a, $a5
+	ld [sMapEncounterCatchFlagsInitialized], a
 .done
 	call DisableEncounterCatchSRAM_Battle
 	ret
