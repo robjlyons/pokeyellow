@@ -1427,10 +1427,10 @@ wCurOpponent:: db
 wBattleType:: db
 
 ; bits 0-6: Effectiveness
-;  $0 = immune
-;  $5 = not very effective
-;  $a = neutral
-; $14 = super-effective
+   ;  $0 = immune
+   ;  $5 = not very effective
+   ;  $a = neutral
+   ; $14 = super-effective
 ; bit 7: STAB
 wDamageMultipliers:: db
 
@@ -1958,9 +1958,6 @@ wMapPalOffset:: db
 
 wCurMap:: db
 
-; Flags for whether the first wild encounter catch opportunity was used per map.
-wMapEncounterCatchFlags:: flag_array NUM_MAPS
-
 ; pointer to the upper left corner of the current view in the tile block map
 wCurrentTileBlockMapViewPointer:: dw
 
@@ -2360,8 +2357,6 @@ wDungeonWarpDestinationMap:: db
 ; which dungeon warp within the source map was used
 wWhichDungeonWarp:: db
 
-wWildEncounterCanCatch:: db
-
 wUnusedCardKeyGateID:: db
 
 	ds 8
@@ -2528,7 +2523,7 @@ wBGPPalsBuffer:: ds NUM_ACTIVE_PALS * PAL_SIZE
 SECTION "Stack", WRAM0
 
 ; the stack grows downward
-	ds $cb - 1
+	ds $eb - 1
 wStack:: db
 
 ENDSECTION
