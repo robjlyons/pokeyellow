@@ -1427,10 +1427,10 @@ wCurOpponent:: db
 wBattleType:: db
 
 ; bits 0-6: Effectiveness
-   ;  $0 = immune
-   ;  $5 = not very effective
-   ;  $a = neutral
-   ; $14 = super-effective
+;  $0 = immune
+;  $5 = not very effective
+;  $a = neutral
+; $14 = super-effective
 ; bit 7: STAB
 wDamageMultipliers:: db
 
@@ -2157,7 +2157,8 @@ wCurrentBoxNum:: db
 ; number of HOF teams
 wNumHoFTeams:: db
 
-wUnusedMapVariable:: db
+wUnusedMapVariable::
+wWildEncounterCanCatch:: db
 
 wPlayerCoins:: dw ; BCD
 
@@ -2523,7 +2524,7 @@ wBGPPalsBuffer:: ds NUM_ACTIVE_PALS * PAL_SIZE
 SECTION "Stack", WRAM0
 
 ; the stack grows downward
-	ds $eb - 1
+	ds $cb - 1
 wStack:: db
 
 ENDSECTION
