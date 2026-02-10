@@ -2361,7 +2361,8 @@ wDungeonWarpDestinationMap:: db
 ; which dungeon warp within the source map was used
 wWhichDungeonWarp:: db
 
-wUnusedCardKeyGateID:: db
+wUnusedCardKeyGateID::
+wWildEncounterCanCatch:: db
 
 	ds 8
 
