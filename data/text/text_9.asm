@@ -218,6 +218,13 @@ _ThrowBallAtTrainerMonText2::
 	text "Don't be a thief!"
 	prompt
 
+_ThrowBallAtUsedEncounterText::
+	text "You have already"
+	line "tried here. Try"
+	cont "a different"
+	cont "route."
+	prompt
+
 _NoCyclingAllowedHereText::
 	text "No cycling"
 	next "allowed here."
