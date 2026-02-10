@@ -218,13 +218,6 @@ _ThrowBallAtTrainerMonText2::
 	text "Don't be a thief!"
 	prompt
 
-_ThrowBallAtUsedEncounterText::
-	text "The Pokemon here"
-	line "are too alert."
-	cont "Try a different"
-	cont "route."
-	prompt
-
 _NoCyclingAllowedHereText::
 	text "No cycling"
 	next "allowed here."
