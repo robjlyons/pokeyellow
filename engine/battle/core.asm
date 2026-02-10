@@ -168,7 +168,7 @@ StartBattle:
 	call DisableEncounterCatchSRAM_Battle
 	ld a, c
 	and a
-	jr nz, .skipWildCatchInit
+	jr z, .skipWildCatchInit
 	ld a, 1
 	ld [wWildEncounterCanCatch], a
 .skipWildCatchInit
@@ -1160,7 +1160,7 @@ MarkWildEncounterCatchUsed:
 	ld a, [wCurMap]
 	ld c, a
 	call EnableEncounterCatchSRAM_Battle
-	ld b, FLAG_SET
+	ld b, FLAG_RESET
 	ld hl, sMapEncounterCatchFlags
 	predef FlagActionPredef
 	call DisableEncounterCatchSRAM_Battle
