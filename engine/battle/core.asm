@@ -173,6 +173,8 @@ StartBattle:
 	ld a, 1
 	ld [wWildEncounterCanCatch], a
 .skipWildCatchInit
+	ld a, 1
+	ld [wWildEncounterCanCatch], a
 	ld a, [wIsInBattle]
 	dec a ; is it a trainer battle?
 	call nz, EnemySendOutFirstMon ; if it is a trainer battle, send out enemy mon
