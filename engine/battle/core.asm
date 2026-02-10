@@ -1194,20 +1194,16 @@ EnsureEncounterCatchFlagsInitialized:
 	ret
 
 EnableEncounterCatchSRAM_Battle:
-	ld a, BMODE_ADVANCED
-	ld [rBMODE], a
-	ld a, RAMG_SRAM_ENABLE
-	ld [rRAMG], a
-	ld a, BANK(sMapEncounterCatchFlags)
-	ld [rRAMB], a
-	ret
+    ld a, RAMG_SRAM_ENABLE       ; usually $0A
+    ld [rRAMG], a
+    ld a, BANK(sMapEncounterCatchFlags)
+    ld [rRAMB], a                ; RAM bank select (MBC1/MBC3/MBC5)
+    ret
 
 DisableEncounterCatchSRAM_Battle:
-	ld a, BMODE_SIMPLE
-	ld [rBMODE], a
-	ASSERT RAMG_SRAM_DISABLE == BMODE_SIMPLE
-	ld [rRAMG], a
-	ret
+    xor a
+    ld [rRAMG], a                ; disable SRAM
+    ret
 
 ; asks if you want to use next mon
 ; stores whether you ran in C flag
