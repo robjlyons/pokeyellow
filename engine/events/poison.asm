@@ -68,10 +68,8 @@ ApplyOutOfBattlePoisonDamage:
 	callfar PlayPikachuSoundClip
 	callfar_ModifyPikachuHappiness PIKAHAPPY_PSNFNT
 .curMonNotPlayerPikachu
-	call HandlePoisonFaintedMonRanAway
 	pop de
 	pop hl
-	jr .restartAfterRemoval
 .nextMon
 	inc hl
 	inc hl
@@ -86,28 +84,7 @@ ApplyOutOfBattlePoisonDamage:
 	ld hl, wWhichPokemon
 	inc [hl]
 	pop hl
-	jp .applyDamageLoop
-.restartAfterRemoval
-	ld a, [wPartyCount]
-	and a
-	jr z, .applyDamageLoopDone
-	ld a, [wWhichPokemon]
-	ld b, a
-	ld a, [wPartyCount]
-	cp b
-	jr z, .applyDamageLoopDone
-	ld hl, wPartySpecies
-	ld a, [wWhichPokemon]
-	ld c, a
-	ld b, 0
-	add hl, bc
-	ld d, h
-	ld e, l
-	ld hl, wPartyMon1Status
-	ld bc, PARTYMON_STRUCT_LENGTH
-	ld a, [wWhichPokemon]
-	call AddNTimes
-	jp .applyDamageLoop
+	jr .applyDamageLoop
 .applyDamageLoopDone
 	ld hl, wPartyMon1Status
 	ld a, [wPartyCount]
@@ -146,31 +123,6 @@ ApplyOutOfBattlePoisonDamage:
 	xor a
 .done
 	ld [wOutOfBattleBlackout], a
-	ret
-
-PoisonFaintedMonRanAwayText:
-	text_far _PokemonRanAwayBadTrainingText
-	text_end
-
-HandlePoisonFaintedMonRanAway:
-	ld hl, wPartyMonNicks
-	call GetPartyMonName
-	ld hl, PoisonFaintedMonRanAwayText
-	call PrintText
-	xor a
-	ld [wRemoveMonFromBox], a
-	call RemovePokemon
-	ld a, [wPartyCount]
-	and a
-	ret z
-	dec a
-	ld b, a
-	ld a, [wWhichPokemon]
-	cp b
-	jr c, .done
-	ld a, b
-	ld [wWhichPokemon], a
-.done
 	ret
 
 Func_c4c7:
