@@ -534,6 +534,7 @@ ItemUseBall:
 	call MarkWildEncounterCatchUsedItem
 	ld [wCurPartySpecies], a
 	ld [wPokedexNum], a
+	call MarkWildEncounterCatchUsedItem
 	ld a, [wBattleType]
 	cp BATTLE_TYPE_OLD_MAN ; is this the old man battle?
 	jp z, .oldManCaughtMon ; if so, don't give the player the caught Pokémon
