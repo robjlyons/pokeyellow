@@ -1518,9 +1518,7 @@ EnemySendOutFirstMon:
 	ld a, [wLinkState]
 	cp LINK_STATE_BATTLING
 	jr z, .next4
-	ld a, [wOptions]
-	bit BIT_BATTLE_SHIFT, a
-	jr nz, .next4
+	jr .next4 ; battle style is forced to SET
 	ld hl, TrainerAboutToUseText
 	call PrintText
 	hlcoord 0, 7
