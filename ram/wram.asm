@@ -1426,14 +1426,11 @@ wCurOpponent:: db
 ; in safari battle, this is 2
 wBattleType:: db
 
-; nonzero if the current wild encounter is allowed to be caught
-wWildEncounterCanCatch:: db
-
 ; bits 0-6: Effectiveness
-   ;  $0 = immune
-   ;  $5 = not very effective
-   ;  $a = neutral
-   ; $14 = super-effective
+;  $0 = immune
+;  $5 = not very effective
+;  $a = neutral
+; $14 = super-effective
 ; bit 7: STAB
 wDamageMultipliers:: db
 
@@ -2163,8 +2160,8 @@ wCurrentBoxNum:: db
 ; number of HOF teams
 wNumHoFTeams:: db
 
-wUnusedMapVariable:: db
-DEF wWildEncounterCanCatch EQU wUnusedMapVariable
+wUnusedMapVariable::
+wWildEncounterCanCatch:: db
 
 wPlayerCoins:: dw ; BCD
 
