@@ -219,9 +219,9 @@ _ThrowBallAtTrainerMonText2::
 	prompt
 
 _ThrowBallAtUsedEncounterText::
-	text "You have already"
-	line "tried here. Try"
-	cont "a different"
+	text "The Pokemon here"
+	line "are too alert."
+	cont "Try a different"
 	cont "route."
 	prompt
 
