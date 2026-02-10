@@ -268,7 +268,7 @@ StartBattle:
 	call SaveScreenTilesToBuffer1
 	ld a, [wWhichPokemon]
 	ld c, a
-	ld b, FLAG_SET
+	ld b, FLAG_TEST
 	push bc
 	ld hl, wPartyGainExpFlags
 	predef FlagActionPredef
