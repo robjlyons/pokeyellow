@@ -2349,7 +2349,8 @@ wLastBlackoutMap:: db
 wDestinationMap:: db
 
 ; initialized to $ff, but nothing ever reads it
-wUnusedPlayerDataByte:: db
+wUnusedPlayerDataByte::
+wWildEncounterCanCatch:: db
 
 ; used to store the tile in front of the boulder when trying to push a boulder
 ; also used to store the result of the collision check ($ff for a collision and $00 for no collision)
