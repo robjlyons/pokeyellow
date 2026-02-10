@@ -137,7 +137,6 @@ StartBattle:
 	ld [wPartyGainExpFlags], a
 	ld [wPartyFoughtCurrentEnemyFlags], a
 	ld [wActionResultOrTookBattleTurn], a
-	ld [wWildEncounterCanCatch], a
 	inc a
 	ld [wFirstMonsNotOutYet], a
 	ld hl, wEnemyMon1HP
@@ -153,25 +152,6 @@ StartBattle:
 .foundFirstAliveEnemyMon
 	ld a, d
 	ld [wSerialExchangeNybbleReceiveData], a
-	ld a, [wIsInBattle]
-	dec a ; is it a wild battle?
-	jr nz, .skipWildCatchInit
-	ld a, [wBattleType]
-	and a ; is it a normal battle?
-	jr nz, .skipWildCatchInit
-	call EnableEncounterCatchSRAM_Battle
-	ld a, [wCurMap]
-	ld c, a
-	ld b, FLAG_TEST
-	ld hl, sMapEncounterCatchFlags
-	predef FlagActionPredef
-	call DisableEncounterCatchSRAM_Battle
-	ld a, c
-	and a
-	jr z, .skipWildCatchInit
-	ld a, 1
-	ld [wWildEncounterCanCatch], a
-.skipWildCatchInit
 	ld a, [wIsInBattle]
 	dec a ; is it a trainer battle?
 	call nz, EnemySendOutFirstMon ; if it is a trainer battle, send out enemy mon
@@ -281,7 +261,6 @@ StartBattle:
 
 ; wild mon or link battle enemy ran from battle
 EnemyRan:
-	call MarkWildEncounterCatchUsed
 	call LoadScreenTilesFromBuffer1
 	ld a, [wLinkState]
 	cp LINK_STATE_BATTLING
@@ -333,16 +312,10 @@ MainInBattleLoop:
 	jr nz, .selectEnemyMove ; if so, jump
 ; the player is neither thrashing about nor charging for an attack
 	call DisplayBattleMenu ; show battle menu
-	jr nc, .didNotRun
-	call MarkWildEncounterCatchUsed
-	ret ; return if player ran from battle
-.didNotRun
+	ret c ; return if player ran from battle
 	ld a, [wEscapedFromBattle]
 	and a
-	jr z, .continueAfterEscapeCheck
-	call MarkWildEncounterCatchUsed
-	ret ; return if pokedoll was used to escape from battle
-.continueAfterEscapeCheck
+	ret nz ; return if pokedoll was used to escape from battle
 	ld a, [wBattleMonStatus]
 	and (1 << FRZ) | SLP_MASK
 	jr nz, .selectEnemyMove ; if so, jump
@@ -746,7 +719,6 @@ HandleEnemyMonFainted:
 	call nz, DrawPlayerHUDAndHPBar ; if battle mon HP is not zero, draw player HD and HP bar
 	ld a, [wIsInBattle]
 	dec a
-	call z, MarkWildEncounterCatchUsed
 	ret z ; return if it's a wild battle
 	call AnyEnemyPokemonAliveCheck
 	jp z, TrainerBattleVictory
@@ -1105,81 +1077,14 @@ RemoveFaintedPlayerMon:
 	jr nc, .carelessTrainer ; if so, punish the player for being careless, as they shouldn't be fighting a very high leveled trainer with such a level difference
 .regularFaint
 	farcall_ModifyPikachuHappiness PIKAHAPPY_FAINTED
-	jr .handleRanAway
+	ret
 .carelessTrainer
 	farcall_ModifyPikachuHappiness PIKAHAPPY_CARELESSTRAINER
-	; fall through
-.handleRanAway
-	call HandleFaintedPlayerMonRanAway
 	ret
 
 PlayerMonFaintedText:
 	text_far _PlayerMonFaintedText
 	text_end
-
-PlayerMonRanAwayBadTrainingText:
-	text_far _PokemonRanAwayBadTrainingText
-	text_end
-
-HandleFaintedPlayerMonRanAway:
-	ld a, [wPlayerMonNumber]
-	ld [wWhichPokemon], a
-	ld hl, wPartyMonNicks
-	call GetPartyMonName
-	ld hl, PlayerMonRanAwayBadTrainingText
-	call PrintText
-	xor a
-	ld [wRemoveMonFromBox], a
-	call RemovePokemon
-	ld a, [wPartyCount]
-	and a
-	ret z
-	dec a
-	ld b, a
-	ld a, [wPlayerMonNumber]
-	cp b
-	jr c, .done
-	ld a, b
-	ld [wPlayerMonNumber], a
-.done
-	ret
-
-MarkWildEncounterCatchUsed:
-	ld a, [wBattleType]
-	and a
-	ret nz
-	ld a, [wIsInBattle]
-	dec a
-	ret nz
-	ld a, [wWildEncounterCanCatch]
-	and a
-	ret z
-	ld a, [wCurMap]
-	ld c, a
-	call EnableEncounterCatchSRAM_Battle
-	ld b, FLAG_RESET
-	ld hl, sMapEncounterCatchFlags
-	predef FlagActionPredef
-	call DisableEncounterCatchSRAM_Battle
-	xor a
-	ld [wWildEncounterCanCatch], a
-	ret
-
-EnableEncounterCatchSRAM_Battle:
-	ld a, BMODE_ADVANCED
-	ld [rBMODE], a
-	ld a, RAMG_SRAM_ENABLE
-	ld [rRAMG], a
-	xor a
-	ld [rRAMB], a
-	ret
-
-DisableEncounterCatchSRAM_Battle:
-	ld a, BMODE_SIMPLE
-	ld [rBMODE], a
-	ASSERT RAMG_SRAM_DISABLE == BMODE_SIMPLE
-	ld [rRAMG], a
-	ret
 
 ; asks if you want to use next mon
 ; stores whether you ran in C flag
@@ -1264,7 +1169,6 @@ ChooseNextMon:
 ; called when player is out of usable mons.
 ; prints appropriate lose message, sets carry flag if player blacked out (special case for initial rival fight)
 HandlePlayerBlackOut:
-	call MarkWildEncounterCatchUsed
 	ld a, [wLinkState]
 	cp LINK_STATE_BATTLING
 	jr z, .notRival1Battle
