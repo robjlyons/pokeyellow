@@ -159,6 +159,7 @@ StartBattle:
 	ld a, [wBattleType]
 	and a ; is it a normal battle?
 	jr nz, .skipWildCatchInit
+	call EnsureEncounterCatchFlagsInitialized
 	call EnableEncounterCatchSRAM_Battle
 	ld a, [wCurMap]
 	ld c, a
@@ -1172,6 +1173,27 @@ MarkWildEncounterCatchUsed:
 	call DisableEncounterCatchSRAM_Battle
 	xor a
 	ld [wWildEncounterCanCatch], a
+	ret
+
+EnsureEncounterCatchFlagsInitialized:
+	call EnableEncounterCatchSRAM_Battle
+	ld hl, sMapEncounterCatchFlags
+	ld b, (NUM_MAPS + 7) / 8
+.scanLoop
+	ld a, [hli]
+	and a
+	jr nz, .done
+	dec b
+	jr nz, .scanLoop
+	ld hl, sMapEncounterCatchFlags
+	ld b, (NUM_MAPS + 7) / 8
+	ld a, $ff
+.fillLoop
+	ld [hli], a
+	dec b
+	jr nz, .fillLoop
+.done
+	call DisableEncounterCatchSRAM_Battle
 	ret
 
 EnableEncounterCatchSRAM_Battle:
