@@ -1427,10 +1427,10 @@ wCurOpponent:: db
 wBattleType:: db
 
 ; bits 0-6: Effectiveness
-   ;  $0 = immune
-   ;  $5 = not very effective
-   ;  $a = neutral
-   ; $14 = super-effective
+;  $0 = immune
+;  $5 = not very effective
+;  $a = neutral
+; $14 = super-effective
 ; bit 7: STAB
 wDamageMultipliers:: db
 
@@ -2345,7 +2345,8 @@ wLastBlackoutMap:: db
 wDestinationMap:: db
 
 ; initialized to $ff, but nothing ever reads it
-wUnusedPlayerDataByte:: db
+wUnusedPlayerDataByte::
+wWildEncounterCanCatch:: db
 
 ; used to store the tile in front of the boulder when trying to push a boulder
 ; also used to store the result of the collision check ($ff for a collision and $00 for no collision)
