@@ -955,6 +955,12 @@ ReplaceFaintedEnemyMon:
 	ret
 
 TrainerBattleVictory:
+	ld a, [wCurOpponent]
+	cp OPP_RIVAL1
+	jr nz, .notRival1Battle
+	xor a
+	ld [wWildEncounterCanCatch], a
+.notRival1Battle
 	call EndLowHealthAlarm
 	ld b, MUSIC_DEFEATED_GYM_LEADER
 	ld a, [wGymLeaderNo]
@@ -1282,6 +1288,8 @@ HandlePlayerBlackOut:
 	call DelayFrames
 	ld hl, Rival1WinText
 	call PrintText
+	xor a
+	ld [wWildEncounterCanCatch], a
 	ld a, [wCurMap]
 	cp OAKS_LAB
 	ret z            ; starter battle in oak's lab: don't black out
