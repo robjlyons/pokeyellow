@@ -10,8 +10,17 @@ AskName:
 	ld a, [wCurPartySpecies]
 	ld [wNamedObjectIndex], a
 	call GetMonName
+	ld hl, DoYouWantToNicknameText
+	call PrintText
+	hlcoord 14, 7
+	lb bc, 8, 15
+	ld a, TWO_OPTION_MENU
+	ld [wTextBoxID], a
+	call DisplayTextBoxID
 	pop hl
-.enterNickname
+	ld a, [wCurrentMenuItem]
+	and a
+	jr nz, .declinedNickname
 	ld a, [wUpdateSpritesEnabled]
 	push af
 	xor a
@@ -31,8 +40,13 @@ AskName:
 	ld [wUpdateSpritesEnabled], a
 	ld a, [wStringBuffer]
 	cp '@'
-	jr z, .enterNickname ; force a nickname (can't skip with empty input)
-	ret
+	ret nz
+.declinedNickname
+	ld d, h
+	ld e, l
+	ld hl, wNameBuffer
+	ld bc, NAME_LENGTH
+	jp CopyData
 
 DoYouWantToNicknameText:
 	text_far _DoYouWantToNicknameText

@@ -175,14 +175,37 @@ OptionsMenu_BattleAnimations:
 .Off: db "OFF@"
 
 OptionsMenu_BattleStyle:
+	ldh a, [hJoy5]
+	and PAD_LEFT | PAD_RIGHT
+	jr nz, .buttonPressed
 	ld a, [wOptions]
-	or 1 << BIT_BATTLE_SHIFT ; force SET
+	and 1 << BIT_BATTLE_SHIFT
+	jr .nothingPressed
+
+.buttonPressed
+	ld a, [wOptions]
+	xor 1 << BIT_BATTLE_SHIFT
 	ld [wOptions], a
-	ld de, .Set
+
+.nothingPressed
+	ld bc, 0
+	sla a
+	sla a
+	rl c
+	ld hl, .Strings
+	add hl, bc
+	add hl, bc
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
 	hlcoord 14, 6
 	call PlaceString
 	and a ; clear carry flag
 	ret
+
+.Strings:
+	dw .Shift
+	dw .Set
 
 .Shift: db "SHIFT@"
 .Set:   db "SET  @"

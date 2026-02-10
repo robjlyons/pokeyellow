@@ -13,14 +13,6 @@ _PokemonFaintedText::
 	line "fainted!"
 	done
 
-_PokemonRanAwayBadTrainingText::
-	text_ram wNameBuffer
-	text_start
-	line "ran away due"
-	cont "to your bad"
-	cont "training!"
-	prompt
-
 _PlayerBlackedOutText::
 	text "<PLAYER> is out of"
 	line "useable #MON!"
