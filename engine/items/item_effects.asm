@@ -531,9 +531,11 @@ ItemUseBall:
 	ld [hl], a
 	ld a, [wEnemyMonSpecies]
     ld [wCapturedMonSpecies], a
+    push af
+    call MarkWildEncounterCatchUsedItem
+    pop af
     ld [wCurPartySpecies], a
     ld [wPokedexNum], a
-    call MarkWildEncounterCatchUsedItem
 	ld a, [wBattleType]
 	cp BATTLE_TYPE_OLD_MAN ; is this the old man battle?
 	jp z, .oldManCaughtMon ; if so, don't give the player the caught Pokémon
