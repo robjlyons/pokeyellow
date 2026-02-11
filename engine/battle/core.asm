@@ -1324,38 +1324,6 @@ BattleBoxSRAMPointerTable:
 	dw sBox5 ; sBox11
 	dw sBox6 ; sBox12
 
-; Returns non-zero if the current wild enemy species is in the player's party or PC boxes.
-IsEnemyMonSpeciesInPlayerCollection:
-	call IsEnemyMonSpeciesInPlayerParty
-	and a
-	ret nz
-	call IsEnemyMonSpeciesInAnyPlayerPCBox
-	and a
-	ret
-
-; Returns non-zero if the current wild enemy species is already present in the player's party.
-IsEnemyMonSpeciesInPlayerParty:
-	ld a, [wPartyCount]
-	ld c, a
-	ld hl, wPartySpecies
-.loop
-	ld a, c
-	and a
-	jr z, .notInParty
-	ld a, [hli]
-	ld b, a
-	ld a, [wEnemyMonSpecies]
-	cp b
-	jr z, .inParty
-	dec c
-	jr .loop
-.inParty
-	ld a, 1
-	ret
-.notInParty
-	xor a
-	ret
-
 ; Returns non-zero if the current wild enemy species is present in any of the player's PC boxes.
 IsEnemyMonSpeciesInAnyPlayerPCBox:
 	ld d, 0
