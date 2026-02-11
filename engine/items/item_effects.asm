@@ -531,7 +531,6 @@ ItemUseBall:
 	ld [hl], a
 	ld a, [wEnemyMonSpecies]
     ld [wCapturedMonSpecies], a
-    call MarkWildEncounterCatchUsedItem
     ld [wCurPartySpecies], a
     ld [wPokedexNum], a
     call MarkWildEncounterCatchUsedItem
