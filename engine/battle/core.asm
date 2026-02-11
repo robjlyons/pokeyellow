@@ -1288,17 +1288,11 @@ IsEnemyMonSpeciesInPlayerPCBox:
 	ld a, [hl]
 	ld c, a
 	inc hl
-	ld a, c
-	cp MONS_PER_BOX + 1
-	jr c, .scanSpeciesLoop
-	ld c, MONS_PER_BOX
 .scanSpeciesLoop
 	ld a, c
 	and a
 	jr z, .notInBox
 	ld a, [hli]
-	cp -1
-	jr z, .notInBox
 	ld b, a
 	ld a, [wEnemyMonSpecies]
 	cp b
