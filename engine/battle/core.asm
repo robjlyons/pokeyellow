@@ -1197,18 +1197,132 @@ EnsureEncounterCatchFlagsInitialized:
 	ret
 
 EnableEncounterCatchSRAM_Battle:
-    ld a, $0A
-    ld [$0000], a                 ; enable SRAM
-    ld a, $01
-    ld [$6000], a                 ; MBC1: RAM banking mode (harmless on others)
-    ld a, BANK(sMapEncounterCatchFlags)
-    ld [$4000], a                 ; select SRAM bank that holds the flags
-    ret
+	ld a, BMODE_ADVANCED
+	ld [rBMODE], a
+	ld a, RAMG_SRAM_ENABLE
+	ld [rRAMG], a
+	ld a, BANK(sMapEncounterCatchFlags)
+	ld [rRAMB], a
+	ret
 
 DisableEncounterCatchSRAM_Battle:
-    xor a
-    ld [$0000], a                 ; disable SRAM
-    ret
+	ld a, BMODE_SIMPLE ; preserve flags
+	ld [rBMODE], a
+	ASSERT RAMG_SRAM_DISABLE == BMODE_SIMPLE
+	ld [rRAMG], a
+	ret
+
+; Returns non-zero if the current wild enemy species is in the player's party or PC boxes.
+IsEnemyMonSpeciesInPlayerCollection:
+	call IsEnemyMonSpeciesInPlayerParty
+	and a
+	ret nz
+	call IsEnemyMonSpeciesInAnyPlayerPCBox
+	and a
+	ret
+
+; Returns non-zero if the current wild enemy species is already present in the player's party.
+IsEnemyMonSpeciesInPlayerParty:
+	ld a, [wPartyCount]
+	ld c, a
+	ld hl, wPartySpecies
+.loop
+	ld a, c
+	and a
+	jr z, .notInParty
+	ld a, [hli]
+	ld b, a
+	ld a, [wEnemyMonSpecies]
+	cp b
+	jr z, .inParty
+	dec c
+	jr .loop
+.inParty
+	ld a, 1
+	ret
+.notInParty
+	xor a
+	ret
+
+; Returns non-zero if the current wild enemy species is present in any of the player's PC boxes.
+IsEnemyMonSpeciesInAnyPlayerPCBox:
+	ld d, 0
+.boxLoop
+	ld a, d
+	cp NUM_BOXES
+	jr z, .notInPC
+	push de
+	call IsEnemyMonSpeciesInPlayerPCBox
+	pop de
+	and a
+	jr nz, .inPC
+	inc d
+	jr .boxLoop
+.inPC
+	ld a, 1
+	ret
+.notInPC
+	xor a
+	ret
+
+; Checks one PC box.
+; in: d = box index (0 to NUM_BOXES - 1)
+; out: non-zero if the current wild enemy species exists in that box
+IsEnemyMonSpeciesInPlayerPCBox:
+	ld a, d
+	cp NUM_BOXES / 2
+	ld b, 2
+	jr c, .haveBank
+	ld b, 3
+	sub NUM_BOXES / 2
+.haveBank
+	ld e, a
+	ld d, 0
+	ld hl, BattleBoxSRAMPointerTable
+	add hl, de
+	add hl, de
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call EnableEncounterCatchSRAM_Battle
+	ld a, b
+	ld [rRAMB], a
+	ld a, [hl]
+	ld c, a
+	inc hl
+	ld a, c
+	cp MONS_PER_BOX + 1
+	jr c, .scanSpeciesLoop
+	ld c, MONS_PER_BOX
+.scanSpeciesLoop
+	ld a, c
+	and a
+	jr z, .notInBox
+	ld a, [hli]
+	cp -1
+	jr z, .notInBox
+	ld b, a
+	ld a, [wEnemyMonSpecies]
+	cp b
+	jr z, .inBox
+	dec c
+	jr .scanSpeciesLoop
+.inBox
+	call DisableEncounterCatchSRAM_Battle
+	ld a, 1
+	ret
+.notInBox
+	call DisableEncounterCatchSRAM_Battle
+	xor a
+	ret
+
+BattleBoxSRAMPointerTable:
+	dw sBox1 ; sBox7
+	dw sBox2 ; sBox8
+	dw sBox3 ; sBox9
+	dw sBox4 ; sBox10
+	dw sBox5 ; sBox11
+	dw sBox6 ; sBox12
 
 ; Returns non-zero if the current wild enemy species is in the player's party or PC boxes.
 IsEnemyMonSpeciesInPlayerCollection:
