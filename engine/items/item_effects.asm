@@ -2642,25 +2642,31 @@ ThrowBallAtUsedEncounterText:
 	text_end
 
 MarkWildEncounterCatchUsedItem:
-	ld a, [wBattleType]
-	and a
-	ret nz
-	ld a, [wIsInBattle]
-	dec a
-	ret nz
-	ld a, [wWildEncounterCanCatch]
-	and a
-	ret z
-	call EnableEncounterCatchSRAM_Item
-	ld a, [wCurMap]
-	ld c, a
-	ld b, FLAG_RESET
-	ld hl, sMapEncounterCatchFlags
-	predef FlagActionPredef
-	call DisableEncounterCatchSRAM_Item
-	xor a
-	ld [wWildEncounterCanCatch], a
-	ret
+    push af
+    ld a, [wBattleType]
+    and a
+    jr nz, .done
+    ld a, [wIsInBattle]
+    dec a
+    jr nz, .done
+    ld a, [wWildEncounterCanCatch]
+    and a
+    jr z, .done
+
+    call EnableEncounterCatchSRAM_Item
+    ld a, [wCurMap]
+    ld c, a
+    ld b, FLAG_RESET
+    ld hl, sMapEncounterCatchFlags
+    predef FlagActionPredef
+    call DisableEncounterCatchSRAM_Item
+
+    xor a
+    ld [wWildEncounterCanCatch], a
+
+.done
+    pop af
+    ret
 
 EnableEncounterCatchSRAM_Item:
     ld a, $0A
