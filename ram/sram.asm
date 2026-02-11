@@ -23,7 +23,7 @@ sTileAnimations:: db
 sGameDataEnd::
 sMainDataCheckSum:: db
 
-; Flags for whether the first wild encounter catch opportunity was used per map.
+SECTION "Encounter Catch Flags", SRAM, BANK[0]
 sMapEncounterCatchFlags:: flag_array NUM_MAPS
 sMapEncounterCatchFlagsInitialized:: db
 
