@@ -1262,52 +1262,70 @@ IsEnemyMonSpeciesInAnyPlayerPCBox:
 ; in: d = box index (0 to NUM_BOXES - 1)
 ; out: non-zero if the current wild enemy species exists in that box
 IsEnemyMonSpeciesInPlayerPCBox:
-	ld a, d
-	cp NUM_BOXES / 2
-	ld b, 2
-	jr c, .haveBank
-	ld b, 3
-	sub NUM_BOXES / 2
+    ; input: d = box index (0..NUM_BOXES-1)
+    ; output: a = 1 if found, 0 if not
+    ; clobbers: a,b,c,d,e,hl
+
+    ld a, d
+    cp NUM_BOXES / 2
+    ld b, 2
+    jr c, .haveBank
+    ld b, 3
+    sub NUM_BOXES / 2
 .haveBank
-	ld e, a
-	ld d, 0
-	ld hl, BattleBoxSRAMPointerTable
-	add hl, de
-	add hl, de
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	call EnableEncounterCatchSRAM_Battle
-	ld a, b
-	ld [rRAMB], a
-	ld a, [hl]
-	ld c, a
-	inc hl
-	ld a, c
-	cp MONS_PER_BOX + 1
-	jr c, .scanSpeciesLoop
-	ld c, MONS_PER_BOX
+    ; a now = box index within this SRAM half (0..)
+    ld e, a
+    ld d, 0
+
+    ; hl = BattleBoxSRAMPointerTable[box] (word table)
+    ld hl, BattleBoxSRAMPointerTable
+    add hl, de
+    add hl, de
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+
+    ; --- open SRAM bank b safely ---
+    ld a, b
+    call OpenSRAM
+
+    ; first byte is box count
+    ld a, [hl]
+    ld c, a
+    inc hl
+
+    ; clamp count to MONS_PER_BOX
+    ld a, c
+    cp MONS_PER_BOX + 1
+    jr c, .scanSpeciesLoop
+    ld c, MONS_PER_BOX
+
 .scanSpeciesLoop
-	ld a, c
-	and a
-	jr z, .notInBox
-	ld a, [hli]
-	cp -1
-	jr z, .notInBox
-	ld b, a
-	ld a, [wEnemyMonSpecies]
-	cp b
-	jr z, .inBox
-	dec c
-	jr .scanSpeciesLoop
+    ld a, c
+    and a
+    jr z, .notInBox
+
+    ld a, [hli]
+    cp -1
+    jr z, .notInBox
+
+    ld b, a
+    ld a, [wEnemyMonSpecies]
+    cp b
+    jr z, .inBox
+
+    dec c
+    jr .scanSpeciesLoop
+
 .inBox
-	call DisableEncounterCatchSRAM_Battle
-	ld a, 1
-	ret
+    call CloseSRAM
+    ld a, 1
+    ret
+
 .notInBox
-	call DisableEncounterCatchSRAM_Battle
-	xor a
-	ret
+    call CloseSRAM
+    xor a
+    ret
 
 BattleBoxSRAMPointerTable:
 	dw sBox1 ; sBox7
