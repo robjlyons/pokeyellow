@@ -531,9 +531,10 @@ ItemUseBall:
 	ld [hl], a
 	ld a, [wEnemyMonSpecies]
     ld [wCapturedMonSpecies], a
-    push af
     call MarkWildEncounterCatchUsedItem
-    pop af
+    ld [wCurPartySpecies], a
+    ld [wPokedexNum], a
+    call MarkWildEncounterCatchUsedItem
     ld [wCurPartySpecies], a
     ld [wPokedexNum], a
 	ld a, [wBattleType]
