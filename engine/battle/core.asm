@@ -1197,19 +1197,12 @@ EnsureEncounterCatchFlagsInitialized:
 	ret
 
 EnableEncounterCatchSRAM_Battle:
-	ld a, BMODE_ADVANCED
-	ld [rBMODE], a
-	ld a, RAMG_SRAM_ENABLE
-	ld [rRAMG], a
 	ld a, BANK(sMapEncounterCatchFlags)
-	ld [rRAMB], a
+	call OpenSRAM
 	ret
 
 DisableEncounterCatchSRAM_Battle:
-	ld a, BMODE_SIMPLE ; preserve flags
-	ld [rBMODE], a
-	ASSERT RAMG_SRAM_DISABLE == BMODE_SIMPLE
-	ld [rRAMG], a
+	call CloseSRAM
 	ret
 
 ; Returns non-zero if the current wild enemy species is in the player's party or PC boxes.
