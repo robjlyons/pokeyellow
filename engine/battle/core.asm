@@ -1197,13 +1197,13 @@ EnsureEncounterCatchFlagsInitialized:
 	ret
 
 EnableEncounterCatchSRAM_Battle:
-	ld a, BANK(sMapEncounterCatchFlags)
-	call OpenSRAM
-	ret
+    ld a, BANK(sMapEncounterCatchFlags) ; should be 0 now
+    call OpenSRAM
+    ret
 
 DisableEncounterCatchSRAM_Battle:
-	call CloseSRAM
-	ret
+    call CloseSRAM
+    ret
 
 ; Returns non-zero if the current wild enemy species is in the player's party or PC boxes.
 IsEnemyMonSpeciesInPlayerCollection:
@@ -1245,7 +1245,7 @@ IsEnemyMonSpeciesInAnyPlayerPCBox:
 	cp NUM_BOXES
 	jr z, .notInPC
 	push de
-	call IsEnemyMonSpeciesInPlayerPCBox
+	call 
 	pop de
 	and a
 	jr nz, .inPC
@@ -1262,9 +1262,8 @@ IsEnemyMonSpeciesInAnyPlayerPCBox:
 ; in: d = box index (0 to NUM_BOXES - 1)
 ; out: non-zero if the current wild enemy species exists in that box
 IsEnemyMonSpeciesInPlayerPCBox:
-    ; input: d = box index (0..NUM_BOXES-1)
-    ; output: a = 1 if found, 0 if not
-    ; clobbers: a,b,c,d,e,hl
+    ; in:  d = box index (0..NUM_BOXES-1)
+    ; out: a = 1 if found, 0 if not
 
     ld a, d
     cp NUM_BOXES / 2
@@ -1273,11 +1272,10 @@ IsEnemyMonSpeciesInPlayerPCBox:
     ld b, 3
     sub NUM_BOXES / 2
 .haveBank
-    ; a now = box index within this SRAM half (0..)
+    ; a = index within half (0..5)
     ld e, a
     ld d, 0
 
-    ; hl = BattleBoxSRAMPointerTable[box] (word table)
     ld hl, BattleBoxSRAMPointerTable
     add hl, de
     add hl, de
@@ -1285,22 +1283,22 @@ IsEnemyMonSpeciesInPlayerPCBox:
     ld h, [hl]
     ld l, a
 
-    ; --- open SRAM bank b safely ---
+    ; --- Open SRAM bank b safely ---
     ld a, b
     call OpenSRAM
 
-    ; first byte is box count
+    ; box count
     ld a, [hl]
     ld c, a
     inc hl
 
-    ; clamp count to MONS_PER_BOX
+    ; clamp
     ld a, c
     cp MONS_PER_BOX + 1
-    jr c, .scanSpeciesLoop
+    jr c, .scan
     ld c, MONS_PER_BOX
 
-.scanSpeciesLoop
+.scan
     ld a, c
     and a
     jr z, .notInBox
@@ -1315,7 +1313,7 @@ IsEnemyMonSpeciesInPlayerPCBox:
     jr z, .inBox
 
     dec c
-    jr .scanSpeciesLoop
+    jr .scan
 
 .inBox
     call CloseSRAM
