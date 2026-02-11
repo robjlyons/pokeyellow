@@ -1245,7 +1245,7 @@ IsEnemyMonSpeciesInAnyPlayerPCBox:
 	cp NUM_BOXES
 	jr z, .notInPC
 	push de
-	call 
+	call IsEnemyMonSpeciesInPlayerPCBox
 	pop de
 	and a
 	jr nz, .inPC
