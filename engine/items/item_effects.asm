@@ -2669,16 +2669,13 @@ MarkWildEncounterCatchUsedItem:
     ret
 
 EnableEncounterCatchSRAM_Item:
-    ld a, $0A
-    ld [$0000], a      ; enable SRAM
-    xor a
-    ld [$4000], a      ; SRAM bank 0
-    ret
+	ld a, BANK(sMapEncounterCatchFlags)
+	call OpenSRAM
+	ret
 
 DisableEncounterCatchSRAM_Item:
-    xor a
-    ld [$0000], a      ; disable SRAM
-    ret
+	call CloseSRAM
+	ret
 
 NoCyclingAllowedHereText:
 	text_far _NoCyclingAllowedHereText
