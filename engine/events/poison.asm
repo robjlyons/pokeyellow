@@ -68,7 +68,11 @@ ApplyOutOfBattlePoisonDamage:
 	callfar PlayPikachuSoundClip
 	callfar_ModifyPikachuHappiness PIKAHAPPY_PSNFNT
 .curMonNotPlayerPikachu
-	call HandlePoisonFaintedMonRanAway
+	ld a, [wWhichPokemon]
+	ld [wPlayerMonNumber], a
+	callfar HandleFaintedPlayerMonRanAway
+	ld a, [wPlayerMonNumber]
+	ld [wWhichPokemon], a
 	pop de
 	pop hl
 	jr .restartAfterRemoval
@@ -148,33 +152,7 @@ ApplyOutOfBattlePoisonDamage:
 	ld [wOutOfBattleBlackout], a
 	ret
 
-PoisonFaintedMonRanAwayText:
-	text_far _PokemonRanAwayBadTrainingText
-	text_end
 
-HandlePoisonFaintedMonRanAway:
-	ld a, [wPartyCount]
-	cp 1
-	ret z ; don't remove the final party mon to avoid invalid 0-mon party state
-	ld hl, wPartyMonNicks
-	call GetPartyMonName
-	ld hl, PoisonFaintedMonRanAwayText
-	call PrintText
-	xor a
-	ld [wRemoveMonFromBox], a
-	call RemovePokemon
-	ld a, [wPartyCount]
-	and a
-	ret z
-	dec a
-	ld b, a
-	ld a, [wWhichPokemon]
-	cp b
-	jr c, .done
-	ld a, b
-	ld [wWhichPokemon], a
-.done
-	ret
 
 Func_c4c7:
 	ld a, [wStepCounter]
