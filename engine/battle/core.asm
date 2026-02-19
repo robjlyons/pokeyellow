@@ -1127,20 +1127,12 @@ PlayerMonFaintedText:
 	text_far _PlayerMonFaintedText
 	text_end
 
-PlayerMonRanAwayBadTrainingText:
-	text_far _PokemonRanAwayBadTrainingText
-	text_end
-
 HandleFaintedPlayerMonRanAway:
 	ld a, [wPartyCount]
 	cp 1
 	ret z ; don't remove the final party mon to avoid invalid 0-mon party state
 	ld a, [wPlayerMonNumber]
 	ld [wWhichPokemon], a
-	ld hl, wPartyMonNicks
-	call GetPartyMonName
-	ld hl, PlayerMonRanAwayBadTrainingText
-	call PrintText
 	xor a
 	ld [wRemoveMonFromBox], a
 	call RemovePokemon
