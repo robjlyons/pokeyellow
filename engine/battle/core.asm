@@ -1194,18 +1194,13 @@ EnsureEncounterCatchFlagsInitialized:
 	ret
 
 EnableEncounterCatchSRAM_Battle:
-    ld a, $0A
-    ld [$0000], a                 ; enable SRAM
-    ld a, $01
-    ld [$6000], a                 ; MBC1: RAM banking mode (harmless on others)
-    ld a, BANK(sMapEncounterCatchFlags)
-    ld [$4000], a                 ; select SRAM bank that holds the flags
-    ret
+	ld a, BANK(sMapEncounterCatchFlags)
+	call OpenSRAM
+	ret
 
 DisableEncounterCatchSRAM_Battle:
-    xor a
-    ld [$0000], a                 ; disable SRAM
-    ret
+	call CloseSRAM
+	ret
 
 ; asks if you want to use next mon
 ; stores whether you ran in C flag

@@ -148,6 +148,7 @@ ApplyOutOfBattlePoisonDamage:
 	ld [wOutOfBattleBlackout], a
 	ret
 
+
 PoisonFaintedMonRanAwayText:
 	text_far _PokemonRanAwayBadTrainingText
 	text_end
@@ -175,6 +176,7 @@ HandlePoisonFaintedMonRanAway:
 	ld [wWhichPokemon], a
 .done
 	ret
+
 
 Func_c4c7:
 	ld a, [wStepCounter]
