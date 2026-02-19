@@ -117,7 +117,7 @@ ItemUseBall:
 	jr nz, .skipEncounterLimitCheck
 	ld a, [wWildEncounterCanCatch]
 	and a
-	jp z, ThrowBallAtUsedEncounter
+	jp z, ItemUseNotTime
 .skipEncounterLimitCheck
 
 ; If this is for the old man battle, skip checking if the party & box are full.
@@ -2590,17 +2590,6 @@ ThrowBallAtTrainerMon:
 	call PrintText
 	jr RemoveUsedItem
 
-ThrowBallAtUsedEncounter:
-	call RunDefaultPaletteCommand
-	call LoadScreenTilesFromBuffer1 ; restore saved screen
-	call Delay3
-	ld a, TOSS_ANIM
-	ld [wAnimationID], a
-	predef MoveAnimation ; do animation
-	ld hl, ThrowBallAtUsedEncounterText
-	call PrintText
-	jr RemoveUsedItem
-
 NoCyclingAllowedHere:
 	ld hl, NoCyclingAllowedHereText
 	jr ItemUseFailed
@@ -2637,10 +2626,6 @@ ThrowBallAtTrainerMonText2:
 	text_far _ThrowBallAtTrainerMonText2
 	text_end
 
-ThrowBallAtUsedEncounterText:
-	text_far _ThrowBallAtUsedEncounterText
-	text_end
-
 MarkWildEncounterCatchUsedItem:
     push af
     ld a, [wBattleType]
@@ -2669,16 +2654,13 @@ MarkWildEncounterCatchUsedItem:
     ret
 
 EnableEncounterCatchSRAM_Item:
-    ld a, $0A
-    ld [$0000], a      ; enable SRAM
-    xor a
-    ld [$4000], a      ; SRAM bank 0
-    ret
+	ld a, BANK(sMapEncounterCatchFlags)
+	call OpenSRAM
+	ret
 
 DisableEncounterCatchSRAM_Item:
-    xor a
-    ld [$0000], a      ; disable SRAM
-    ret
+	call CloseSRAM
+	ret
 
 NoCyclingAllowedHereText:
 	text_far _NoCyclingAllowedHereText
