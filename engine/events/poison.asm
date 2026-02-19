@@ -71,8 +71,6 @@ ApplyOutOfBattlePoisonDamage:
 	ld a, [wWhichPokemon]
 	ld [wPlayerMonNumber], a
 	callfar HandleFaintedPlayerMonRanAway
-	ld a, [wPlayerMonNumber]
-	ld [wWhichPokemon], a
 	pop de
 	pop hl
 	jr .restartAfterRemoval
@@ -151,8 +149,6 @@ ApplyOutOfBattlePoisonDamage:
 .done
 	ld [wOutOfBattleBlackout], a
 	ret
-
-
 
 Func_c4c7:
 	ld a, [wStepCounter]
