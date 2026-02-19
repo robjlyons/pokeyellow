@@ -742,12 +742,8 @@ HandleBlackOut::
 	call StopMusic
 	ld hl, wStatusFlags4
 	res BIT_BATTLE_OVER_OR_BLACKOUT, [hl]
-	ld a, BANK(PrepareForSpecialWarp) ; also BANK(SpecialEnterMap)
-	call BankswitchCommon
-	callfar ResetStatusAndHalveMoneyOnBlackout
-	call PrepareForSpecialWarp
-	call PlayDefaultMusicFadeOutCurrent
-	jp SpecialEnterMap
+	; Challenge rule: blackout acts like game over; return to title/main menu.
+	jp SoftReset
 
 StopMusic::
 	ld [wAudioFadeOutControl], a
