@@ -34,7 +34,7 @@ MainMenu:
 	jr z, .noSaveFile
 ; there's a save file
 	hlcoord 0, 0
-	lb bc, 6, 13
+	lb bc, 8, 13
 	call TextBoxBorder
 	hlcoord 2, 2
 	ld de, ContinueText
@@ -42,7 +42,7 @@ MainMenu:
 	jr .next2
 .noSaveFile
 	hlcoord 0, 0
-	lb bc, 4, 13
+	lb bc, 6, 13
 	call TextBoxBorder
 	hlcoord 2, 2
 	ld de, NewGameText
@@ -62,6 +62,7 @@ MainMenu:
 	ld a, PAD_A | PAD_B | PAD_START
 	ld [wMenuWatchedKeys], a
 	ld a, [wSaveFileStatus]
+	inc a
 	ld [wMaxMenuItem], a
 	call HandleMenuInput
 	bit B_PAD_B, a
@@ -82,6 +83,11 @@ MainMenu:
 	jr z, .choseContinue
 	cp 1
 	jp z, StartNewGame
+	cp 2
+	jr z, .choseOptionMenu
+	call DisplayNuzloptionsMenu
+	jp .mainMenuLoop
+.choseOptionMenu
 	call DisplayOptionMenu
 	ld a, TRUE
 	ld [wOptionsInitialized], a
@@ -183,7 +189,148 @@ ContinueText:
 
 NewGameText:
 	db   "NEW GAME"
-	next "OPTION@"
+	next "OPTION"
+	next "NUZLOPTIONS@"
+
+DisplayNuzloptionsMenu:
+	call InitNuzloptionsMenu
+.nuzloptionsMenuLoop
+	call JoypadLowSensitivity
+	ldh a, [hJoy5]
+	and PAD_START | PAD_B
+	ret nz
+	call NuzloptionsControl
+	jr c, .dpadDelay
+	call NuzloptionsMenu_UpdateSelectedOption
+.dpadDelay
+	call NuzloptionsMenu_UpdateCursorPosition
+	call DelayFrame
+	call DelayFrame
+	call DelayFrame
+	jr .nuzloptionsMenuLoop
+
+NuzloptionsMenu_UpdateSelectedOption:
+	ld a, [wOptionsCursorLocation]
+	and a
+	jr z, .all151
+	ld b, 1 << BIT_NUZLOPTIONS_RANDOMISE
+	jr .update
+.all151
+	ld b, 1 << BIT_NUZLOPTIONS_ALL_151_POKEMON
+.update
+	ldh a, [hJoy5]
+	and PAD_LEFT | PAD_RIGHT
+	jr z, .drawOnly
+	ld hl, wUnusedObtainedBadges
+	ld a, [hl]
+	xor b
+	ld [hl], a
+.drawOnly
+	ld hl, wUnusedObtainedBadges
+	ld a, [hl]
+	and b
+	jr z, .off
+	ld c, 1
+	jr .loadString
+.off
+	ld c, 0
+.loadString
+	ld b, 0
+	ld hl, .Strings
+	add hl, bc
+	add hl, bc
+	ld e, [hl]
+	inc hl
+	ld d, [hl]
+	ld a, [wOptionsCursorLocation]
+	and a
+	jr z, .placeAll151
+	hlcoord 14, 4
+	jr .place
+.placeAll151
+	hlcoord 14, 2
+.place
+	call PlaceString
+	ret
+
+.Strings:
+	dw .Off
+	dw .On
+
+.Off: db "OFF@"
+.On:  db "ON @"
+
+NuzloptionsControl:
+	ld hl, wOptionsCursorLocation
+	ldh a, [hJoy5]
+	cp PAD_DOWN
+	jr z, .pressedDown
+	cp PAD_UP
+	jr z, .pressedUp
+	and a
+	ret
+.pressedDown
+	ld a, [hl]
+	cp 1
+	jr nz, .increase
+	xor a
+	ld [hl], a
+	scf
+	ret
+.increase
+	inc [hl]
+	scf
+	ret
+.pressedUp
+	ld a, [hl]
+	and a
+	jr nz, .decrease
+	ld [hl], 2
+.decrease
+	dec [hl]
+	scf
+	ret
+
+NuzloptionsMenu_UpdateCursorPosition:
+	hlcoord 1, 1
+	ld de, SCREEN_WIDTH
+	ld c, 8
+.loop
+	ld [hl], ' '
+	add hl, de
+	dec c
+	jr nz, .loop
+	hlcoord 1, 2
+	ld bc, SCREEN_WIDTH * 2
+	ld a, [wOptionsCursorLocation]
+	call AddNTimes
+	ld [hl], '▶'
+	ret
+
+InitNuzloptionsMenu:
+	hlcoord 0, 0
+	lb bc, 8, SCREEN_WIDTH - 2
+	call TextBoxBorder
+	hlcoord 2, 2
+	ld de, NuzloptionsText
+	call PlaceString
+	xor a
+	ld [wOptionsCursorLocation], a
+	ld [wUnusedObtainedBadges], a
+	call NuzloptionsMenu_UpdateSelectedOption
+	ld a, 1
+	ld [wOptionsCursorLocation], a
+	call NuzloptionsMenu_UpdateSelectedOption
+	xor a
+	ld [wOptionsCursorLocation], a
+	inc a
+	ldh [hAutoBGTransferEnabled], a
+	call Delay3
+	ret
+
+NuzloptionsText:
+	db   "ALL 151 POKEMON:"
+	next "RANDOMISE:@"
 
 DisplayContinueGameInfo:
 	xor a
