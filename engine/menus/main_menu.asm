@@ -202,7 +202,6 @@ DisplayNuzloptionsMenu:
 	call NuzloptionsControl
 	jr c, .dpadDelay
 	call NuzloptionsMenu_UpdateSelectedOption
-	jr c, .exitNuzloptionsMenu
 .dpadDelay
 	call NuzloptionsMenu_UpdateCursorPosition
 	call DelayFrame
@@ -210,19 +209,8 @@ DisplayNuzloptionsMenu:
 	call DelayFrame
 	jr .nuzloptionsMenuLoop
 
-.exitNuzloptionsMenu
-	ret
-
-	const_def
-	const OPT_NUZLOPTIONS_ALL_POKEMON ; 0
-	const OPT_NUZLOPTIONS_RANDOMISE   ; 1
-	const_skip 5
-	const OPT_NUZLOPTIONS_CANCEL      ; 7
-
 NuzloptionsMenu_UpdateSelectedOption:
 	ld a, [wOptionsCursorLocation]
-	cp OPT_NUZLOPTIONS_CANCEL
-	jr z, .cancel
 	and a
 	jr z, .all151
 	ld b, 1 << BIT_NUZLOPTIONS_RANDOMISE
@@ -263,18 +251,6 @@ NuzloptionsMenu_UpdateSelectedOption:
 	hlcoord 14, 2
 .place
 	call PlaceString
-	and a ; clear carry flag
-	ret
-
-.cancel
-	ldh a, [hJoy5]
-	and PAD_A
-	jr nz, .pressedCancel
-	and a ; clear carry flag
-	ret
-
-.pressedCancel
-	scf
 	ret
 
 .Strings:
@@ -295,34 +271,21 @@ NuzloptionsControl:
 	ret
 .pressedDown
 	ld a, [hl]
-	cp OPT_NUZLOPTIONS_CANCEL
-	jr nz, .doNotWrap
+	cp 1
+	jr nz, .increase
 	xor a
 	ld [hl], a
 	scf
 	ret
-
-.doNotWrap
-	cp OPT_NUZLOPTIONS_RANDOMISE
-	jr nz, .increase
-	ld [hl], OPT_NUZLOPTIONS_CANCEL - 1
-
 .increase
 	inc [hl]
 	scf
 	ret
 .pressedUp
 	ld a, [hl]
-	cp OPT_NUZLOPTIONS_CANCEL
-	jr nz, .doNotSkip
-	ld [hl], OPT_NUZLOPTIONS_RANDOMISE
-	scf
-	ret
-
-.doNotSkip
 	and a
 	jr nz, .decrease
-	ld [hl], OPT_NUZLOPTIONS_CANCEL + 1
+	ld [hl], 2
 .decrease
 	dec [hl]
 	scf
