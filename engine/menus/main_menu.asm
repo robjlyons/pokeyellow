@@ -322,7 +322,7 @@ InitNuzloptionsMenu:
 	ret
 
 NuzloptionsText:
-	db   "ALL POKEMON:"
+	db   "ALLPOKEMON:"
 	next "RANDOMISE:@"
 
 DisplayContinueGameInfo:
