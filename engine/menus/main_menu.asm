@@ -210,31 +210,23 @@ DisplayNuzloptionsMenu:
 	jr .nuzloptionsMenuLoop
 
 NuzloptionsMenu_UpdateSelectedOption:
-	ld a, [wOptionsCursorLocation]
+	ld a, [wNuzloptionsCursorLocation]
 	and a
 	jr z, .all151
-	ld b, 1 << BIT_NUZLOPTIONS_RANDOMISE
+	ld hl, wNuzloptionsRandomise
 	jr .update
 .all151
-	ld b, 1 << BIT_NUZLOPTIONS_ALL_151_POKEMON
+	ld hl, wNuzloptionsAll151Pokemon
 .update
 	ldh a, [hJoy5]
 	and PAD_LEFT | PAD_RIGHT
 	jr z, .drawOnly
-	ld hl, wUnusedObtainedBadges
 	ld a, [hl]
-	xor b
+	xor 1
 	ld [hl], a
 .drawOnly
-	ld hl, wUnusedObtainedBadges
 	ld a, [hl]
-	and b
-	jr z, .off
-	ld c, 1
-	jr .loadString
-.off
-	ld c, 0
-.loadString
+	ld c, a
 	ld b, 0
 	ld hl, .Strings
 	add hl, bc
@@ -242,13 +234,13 @@ NuzloptionsMenu_UpdateSelectedOption:
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
-	ld a, [wOptionsCursorLocation]
+	ld a, [wNuzloptionsCursorLocation]
 	and a
 	jr z, .placeAll151
-	hlcoord 14, 4
+	hlcoord 14, 6
 	jr .place
 .placeAll151
-	hlcoord 14, 2
+	hlcoord 14, 4
 .place
 	call PlaceString
 	ret
@@ -261,7 +253,7 @@ NuzloptionsMenu_UpdateSelectedOption:
 .On:  db "ON @"
 
 NuzloptionsControl:
-	ld hl, wOptionsCursorLocation
+	ld hl, wNuzloptionsCursorLocation
 	ldh a, [hJoy5]
 	cp PAD_DOWN
 	jr z, .pressedDown
@@ -300,9 +292,9 @@ NuzloptionsMenu_UpdateCursorPosition:
 	add hl, de
 	dec c
 	jr nz, .loop
-	hlcoord 1, 2
+	hlcoord 1, 4
 	ld bc, SCREEN_WIDTH * 2
-	ld a, [wOptionsCursorLocation]
+	ld a, [wNuzloptionsCursorLocation]
 	call AddNTimes
 	ld [hl], '▶'
 	ret
@@ -315,21 +307,22 @@ InitNuzloptionsMenu:
 	ld de, NuzloptionsText
 	call PlaceString
 	xor a
-	ld [wOptionsCursorLocation], a
-	ld [wUnusedObtainedBadges], a
+	ld [wNuzloptionsCursorLocation], a
+	ld [wNuzloptionsAll151Pokemon], a
+	ld [wNuzloptionsRandomise], a
 	call NuzloptionsMenu_UpdateSelectedOption
 	ld a, 1
-	ld [wOptionsCursorLocation], a
+	ld [wNuzloptionsCursorLocation], a
 	call NuzloptionsMenu_UpdateSelectedOption
 	xor a
-	ld [wOptionsCursorLocation], a
+	ld [wNuzloptionsCursorLocation], a
 	inc a
 	ldh [hAutoBGTransferEnabled], a
 	call Delay3
 	ret
 
 NuzloptionsText:
-	db   "ALL 151 POKEMON:"
+	db   "ALL POKEMON:"
 	next "RANDOMISE:@"
 
 DisplayContinueGameInfo:
