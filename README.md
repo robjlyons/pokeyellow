@@ -1,3 +1,19 @@
+# Pokemon Yellow Nuzlocke
+
+The aim of this mod is to provide a vanilla Pokemon Yellow game where the nuzlocke rules are enforced.
+
+Roadmap:
+
+- [x] When a pokemon faints, it is removed from the party
+- [x] When the players last pokemon faints the game is restarted
+- [x] Only one pokemon can be caught per route.
+- [x] Pokemon have to be given a name
+- [ ] Randomise Option
+- [ ] All 151 Pokemon option
+
+
+With thanks to the pokemon yellow dissassembly this project has been forked from:
+
 # Pokémon Yellow [![Build Status][ci-badge]][ci]
 
 This is a disassembly of Pokémon Yellow.
