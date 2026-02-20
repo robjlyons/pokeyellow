@@ -210,23 +210,31 @@ DisplayNuzloptionsMenu:
 	jr .nuzloptionsMenuLoop
 
 NuzloptionsMenu_UpdateSelectedOption:
-	ld a, [wNuzloptionsCursorLocation]
+	ld a, [wOptionsCursorLocation]
 	and a
 	jr z, .all151
-	ld hl, wNuzloptionsRandomise
+	ld b, 1 << BIT_NUZLOPTIONS_RANDOMISE
 	jr .update
 .all151
-	ld hl, wNuzloptionsAll151Pokemon
+	ld b, 1 << BIT_NUZLOPTIONS_ALL_151_POKEMON
 .update
 	ldh a, [hJoy5]
 	and PAD_LEFT | PAD_RIGHT
 	jr z, .drawOnly
+	ld hl, wUnusedObtainedBadges
 	ld a, [hl]
-	xor 1
+	xor b
 	ld [hl], a
 .drawOnly
+	ld hl, wUnusedObtainedBadges
 	ld a, [hl]
-	ld c, a
+	and b
+	jr z, .off
+	ld c, 1
+	jr .loadString
+.off
+	ld c, 0
+.loadString
 	ld b, 0
 	ld hl, .Strings
 	add hl, bc
@@ -234,13 +242,13 @@ NuzloptionsMenu_UpdateSelectedOption:
 	ld e, [hl]
 	inc hl
 	ld d, [hl]
-	ld a, [wNuzloptionsCursorLocation]
+	ld a, [wOptionsCursorLocation]
 	and a
 	jr z, .placeAll151
-	hlcoord 14, 6
+	hlcoord 14, 4
 	jr .place
 .placeAll151
-	hlcoord 14, 4
+	hlcoord 14, 2
 .place
 	call PlaceString
 	ret
@@ -253,7 +261,7 @@ NuzloptionsMenu_UpdateSelectedOption:
 .On:  db "ON @"
 
 NuzloptionsControl:
-	ld hl, wNuzloptionsCursorLocation
+	ld hl, wOptionsCursorLocation
 	ldh a, [hJoy5]
 	cp PAD_DOWN
 	jr z, .pressedDown
@@ -286,44 +294,49 @@ NuzloptionsControl:
 NuzloptionsMenu_UpdateCursorPosition:
 	hlcoord 1, 1
 	ld de, SCREEN_WIDTH
-	ld c, 8
+	ld c, 16
 .loop
 	ld [hl], ' '
 	add hl, de
 	dec c
 	jr nz, .loop
-	hlcoord 1, 4
+	hlcoord 1, 2
 	ld bc, SCREEN_WIDTH * 2
-	ld a, [wNuzloptionsCursorLocation]
+	ld a, [wOptionsCursorLocation]
 	call AddNTimes
 	ld [hl], '▶'
 	ret
 
 InitNuzloptionsMenu:
 	hlcoord 0, 0
-	lb bc, 8, SCREEN_WIDTH - 2
+	lb bc, SCREEN_HEIGHT - 2, SCREEN_WIDTH - 2
 	call TextBoxBorder
 	hlcoord 2, 2
 	ld de, NuzloptionsText
 	call PlaceString
+	hlcoord 2, 16
+	ld de, NuzloptionsCancelText
+	call PlaceString
 	xor a
-	ld [wNuzloptionsCursorLocation], a
-	ld [wNuzloptionsAll151Pokemon], a
-	ld [wNuzloptionsRandomise], a
+	ld [wOptionsCursorLocation], a
+	ld [wUnusedObtainedBadges], a
 	call NuzloptionsMenu_UpdateSelectedOption
 	ld a, 1
-	ld [wNuzloptionsCursorLocation], a
+	ld [wOptionsCursorLocation], a
 	call NuzloptionsMenu_UpdateSelectedOption
 	xor a
-	ld [wNuzloptionsCursorLocation], a
+	ld [wOptionsCursorLocation], a
 	inc a
 	ldh [hAutoBGTransferEnabled], a
 	call Delay3
 	ret
 
 NuzloptionsText:
-	db   "ALLPOKEMON:"
-	next "RANDOMISE:@"
+	db   "ALL POKEMON:"
+	next "RANDOMISE  :@"
+
+NuzloptionsCancelText:
+	db "CANCEL@"
 
 DisplayContinueGameInfo:
 	xor a
