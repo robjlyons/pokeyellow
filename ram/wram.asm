@@ -1940,6 +1940,9 @@ wPlayerMoney:: ds 3 ; BCD
 wRivalName:: ds NAME_LENGTH
 
 wOptions:: db
+wNuzloptionsAll151Pokemon:: db
+wNuzloptionsRandomise:: db
+wNuzloptionsCursorLocation:: db
 
 wObtainedBadges:: flag_array NUM_BADGES
 
