@@ -213,22 +213,20 @@ NuzloptionsMenu_UpdateSelectedOption:
 	ld a, [wOptionsCursorLocation]
 	and a
 	jr z, .all151
-	ld b, 1 << BIT_NUZLOPTIONS_RANDOMISE
+	ld hl, wNuzloptionsRandomise
 	jr .update
 .all151
-	ld b, 1 << BIT_NUZLOPTIONS_ALL_151_POKEMON
+	ld hl, wNuzloptionsAll151Pokemon
 .update
 	ldh a, [hJoy5]
 	and PAD_LEFT | PAD_RIGHT
 	jr z, .drawOnly
-	ld hl, wUnusedObtainedBadges
 	ld a, [hl]
-	xor b
+	xor 1
 	ld [hl], a
 .drawOnly
-	ld hl, wUnusedObtainedBadges
 	ld a, [hl]
-	and b
+	and a
 	jr z, .off
 	ld c, 1
 	jr .loadString
@@ -319,7 +317,6 @@ InitNuzloptionsMenu:
 	call PlaceString
 	xor a
 	ld [wOptionsCursorLocation], a
-	ld [wUnusedObtainedBadges], a
 	call NuzloptionsMenu_UpdateSelectedOption
 	ld a, 1
 	ld [wOptionsCursorLocation], a
