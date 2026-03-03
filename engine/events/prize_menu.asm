@@ -68,8 +68,8 @@ GetPrizeMenuId:
 	ld d, 0
 	ld e, a
 	ld hl, PrizeDifferentMenuPtrs
-	ld a, [wUnusedObtainedBadges]
-	bit BIT_NUZLOPTIONS_ALL_151_POKEMON, a
+	ld a, [wNuzloptionsAll151Pokemon]
+	and a
 	jr z, .gotPrizePtrs
 	ld hl, PrizeDifferentMenuPtrs_All151
 .gotPrizePtrs

@@ -11,8 +11,8 @@ LoadWildData::
 	ld h, [hl]
 	ld l, a       ; hl now points to wild data for current map
 	; check ALL151 flag — redirect to alternate data if this map has a patch
-	ld a, [wUnusedObtainedBadges]
-	bit BIT_NUZLOPTIONS_ALL_151_POKEMON, a
+	ld a, [wNuzloptionsAll151Pokemon]
+	and a
 	jr z, .loadFromHL
 	ld a, [wCurMap]
 	ld b, a
