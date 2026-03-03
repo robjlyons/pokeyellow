@@ -1,4 +1,8 @@
 PrepareOakSpeech:
+	ld a, [wNuzloptionsAll151Pokemon]
+	push af
+	ld a, [wNuzloptionsRandomise]
+	push af
 	ld a, [wLetterPrintingDelayFlags]
 	push af
 	ld a, [wOptions]
@@ -32,6 +36,10 @@ PrepareOakSpeech:
 	ld [wOptions], a
 	pop af
 	ld [wLetterPrintingDelayFlags], a
+	pop af
+	ld [wNuzloptionsRandomise], a
+	pop af
+	ld [wNuzloptionsAll151Pokemon], a
 	ld a, [wOptionsInitialized]
 	and a
 	call z, InitOptions
