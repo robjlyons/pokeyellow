@@ -424,12 +424,7 @@ GetMonHeader::
 	cp FOSSIL_AERODACTYL ; Aerodactyl fossil
 	jr z, .specialID
 	predef IndexToPokedex
-	; If RANDOMISE is on, remap wPokedexNum through sNuzlockBasePerm.
-	ld a, [wNuzloptionsRandomise]
-	and a
-	jr z, .noBasePermutation
-	predef RemapPokedexNum
-.noBasePermutation:
+	; Load ORIGINAL species' full BaseStats (correct sprites included)
 	ld a, [wPokedexNum]
 	dec a
 	ld bc, BASE_DATA_SIZE
@@ -438,6 +433,12 @@ GetMonHeader::
 	ld de, wMonHeader
 	ld bc, BASE_DATA_SIZE
 	call CopyData
+	; If RANDOMISE, overlay permuted stats (bytes 1-9) over the header.
+	; Sprite bytes (10-14) remain from the original species above.
+	ld a, [wNuzloptionsRandomise]
+	and a
+	jr z, .done
+	predef ApplyBasePermutation
 	jr .done
 .specialID
 	ld hl, wMonHSpriteDim

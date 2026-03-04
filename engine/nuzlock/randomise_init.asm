@@ -119,12 +119,19 @@ InitRandomiserTables::
 
 
 ; ---------------------------------------------------------------
-; RemapPokedexNum: remap wPokedexNum through sNuzlockBasePerm.
-; Called via predef from GetMonHeader when RANDOMISE is on.
-; Overwrites wPokedexNum with the permuted national dex number.
-; Destroys A, DE, HL.
+; ApplyBasePermutation: overlay stats bytes from the permuted species
+; into wMonHeader, leaving sprite bytes (offsets 10-14) intact.
+;
+; GetMonHeader has already copied the ORIGINAL species' full BaseStats
+; (28 bytes) into wMonHeader, so sprites are correct.  This predef
+; then overwrites only wMonHeader[1..9] (HP, Atk, Def, Spd, Spc,
+; Type1, Type2, CatchRate, BaseEXP) with the permuted species' values.
+;
+; Input:  wPokedexNum = original national dex number.
+; Destroys A, BC, DE, HL.
 ; ---------------------------------------------------------------
-RemapPokedexNum::
+ApplyBasePermutation::
+	; Fetch permuted dex number from SRAM
 	ld a, BANK(sNuzlockBasePerm)
 	call OpenSRAM
 	ld a, [wPokedexNum]
@@ -133,9 +140,18 @@ RemapPokedexNum::
 	ld d, 0
 	ld e, a
 	add hl, de
-	ld a, [hl]              ; permuted national dex number
+	ld a, [hl]              ; A = permuted national dex number
 	call CloseSRAM          ; preserves A
-	ld [wPokedexNum], a
+	; Point HL at permuted species' BaseStats entry
+	dec a                   ; 0-indexed
+	ld bc, BASE_DATA_SIZE
+	ld hl, BaseStats
+	call AddNTimes          ; HL → BaseStats[permuted - 1]
+	; Copy bytes 1-9 only (skip byte 0 = dex no, stop before byte 10 = sprite dim)
+	inc hl                  ; skip BASE_DEX_NO
+	ld de, wMonHeader + 1   ; wMonHBaseHP — first stat byte
+	ld bc, 9
+	call CopyData
 	ret
 
 
