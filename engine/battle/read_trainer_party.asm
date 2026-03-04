@@ -55,6 +55,10 @@ ReadTrainer:
 	and a ; have we reached the end of the trainer data?
 	jp z, .AddAdditionalMoveData
 	ld [wCurPartySpecies], a
+	; If RANDOMISE is on, override species with a random one (final form at level 30+)
+	ld a, [wNuzloptionsRandomise]
+	and a
+	call nz, RandomTrainerSpecies
 	ld a, ENEMY_PARTY_DATA
 	ld [wMonDataLocation], a
 	push hl
@@ -72,6 +76,10 @@ ReadTrainer:
 	ld [wCurEnemyLevel], a
 	ld a, [hli]
 	ld [wCurPartySpecies], a
+	; If RANDOMISE is on, override species (final form at level 30+)
+	ld a, [wNuzloptionsRandomise]
+	and a
+	call nz, RandomTrainerSpecies
 	ld a, ENEMY_PARTY_DATA
 	ld [wMonDataLocation], a
 	push hl
@@ -143,3 +151,55 @@ ReadTrainer:
 	dec b
 	jr nz, .LastLoop ; repeat wCurEnemyLevel times
 	ret
+
+; RandomTrainerSpecies
+; Pick a random species for a trainer slot.
+; If wCurEnemyLevel >= 30, use the final evolution form.
+; Writes the internal species ID to wCurPartySpecies.
+; Preserves HL.
+RandomTrainerSpecies:
+	push hl
+	call Random             ; A = random 0..255 (home bank, preserves HL/BC)
+	ld c, 151
+.modloop:
+	cp c
+	jr c, .moddone
+	sub c
+	jr .modloop
+.moddone:
+	; A = 0..150 — index into TrainerValidSpeciesTable to get internal species ID
+	ld hl, TrainerValidSpeciesTable
+	ld d, 0
+	ld e, a
+	add hl, de
+	ld a, [hl]              ; A = internal species ID
+	; Check if level >= 30: apply FinalEvolutionTable
+	ld b, a                 ; B = species
+	ld a, [wCurEnemyLevel]
+	cp 30
+	jr c, .noFinalEvo       ; below 30: keep species as-is
+	; Look up final form in FinalEvolutionTable[species-1]
+	ld a, b
+	dec a                   ; 0-indexed
+	ld hl, FinalEvolutionTable
+	ld d, 0
+	ld e, a
+	add hl, de
+	ld a, [hl]              ; final-form internal species ID (0 if N/A)
+	and a
+	jr z, .noFinalEvo       ; 0 = no final form listed, keep original
+	ld b, a
+.noFinalEvo:
+	ld a, b
+	ld [wCurPartySpecies], a
+	pop hl
+	ret
+
+INCLUDE "data/nuzlock/final_evolutions.asm"
+
+; ---------------------------------------------------------------
+; TrainerValidSpeciesTable — 151 internal species IDs, national dex order.
+; Index 0 = dex 1 (Bulbasaur) ... index 150 = dex 151 (Mew).
+; ---------------------------------------------------------------
+TrainerValidSpeciesTable:
+INCLUDE "data/nuzlock/species_list_data.asm"

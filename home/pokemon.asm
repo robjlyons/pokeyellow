@@ -424,6 +424,12 @@ GetMonHeader::
 	cp FOSSIL_AERODACTYL ; Aerodactyl fossil
 	jr z, .specialID
 	predef IndexToPokedex
+	; If RANDOMISE is on, remap wPokedexNum through sNuzlockBasePerm.
+	ld a, [wNuzloptionsRandomise]
+	and a
+	jr z, .noBasePermutation
+	predef RemapPokedexNum
+.noBasePermutation:
 	ld a, [wPokedexNum]
 	dec a
 	ld bc, BASE_DATA_SIZE

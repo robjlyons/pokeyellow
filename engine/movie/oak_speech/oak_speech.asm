@@ -65,9 +65,21 @@ OakSpeech:
 	call ClearScreen
 	call LoadTextBoxTilePatterns
 	call PrepareOakSpeech
+	farcall InitRandomiserTables  ; fill SRAM tables if RANDOMISE is ON
 	predef InitPlayerData2
 	ld hl, wNumBoxItems
+	ld a, [wNuzloptionsRandomise]
+	and a
+	jr z, .defaultPCItem
+	; RANDOMISE is ON — read starting item from SRAM table
+	ld a, BANK(sNuzlockPCItem)
+	call OpenSRAM
+	ld a, [sNuzlockPCItem]
+	call CloseSRAM
+	jr .gotPCItem
+.defaultPCItem:
 	ld a, POTION
+.gotPCItem:
 	ld [wCurItem], a
 	ld a, 1
 	ld [wItemQuantity], a
