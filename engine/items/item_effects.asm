@@ -820,6 +820,10 @@ ItemUseEvoStone:
 	ld [wCurPartySpecies], a
 	call Func_d85d
 	jr nc, .noEffect
+	; When RANDOMISE is on, allow Pikachu to evolve freely with a stone
+	ld a, [wNuzloptionsRandomise]
+	and a
+	jr nz, .notPlayerPikachu
 	callfar IsThisPartyMonStarterPikachu
 	jr nc, .notPlayerPikachu
 	ldpikacry e, PikachuCry28

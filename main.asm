@@ -65,6 +65,7 @@ INCLUDE "engine/events/hidden_events/book_or_sculpture.asm"
 INCLUDE "engine/events/hidden_events/elevator.asm"
 INCLUDE "engine/events/hidden_events/town_map.asm"
 INCLUDE "engine/events/hidden_events/pokemon_stuff.asm"
+INCLUDE "engine/nuzlock/randomise_init.asm"
 
 
 SECTION "bank4", ROMX

@@ -85,7 +85,17 @@ Evolution_PartyMonLoop: ; loop over party mons
 .checkTradeEvo
 	ld a, [wLinkState]
 	cp LINK_STATE_TRADING
-	jp nz, .nextEvoEntry1 ; if not trading, go to the next evolution entry
+	jr z, .tradeEvoCheck
+	; Not in a link trade: allow evolution at level 38 when RANDOMISE is on
+	ld a, [wNuzloptionsRandomise]
+	and a
+	jp z, .nextEvoEntry1    ; RANDOMISE off: skip trade evo (original behaviour)
+	inc hl                  ; skip level_req byte; HL now points to species
+	ld a, [wLoadedMonLevel]
+	cp 38
+	jp c, Evolution_PartyMonLoop ; below level 38: skip to next mon
+	jr .doEvolution
+.tradeEvoCheck
 	ld a, [hli] ; level requirement
 	ld b, a
 	ld a, [wLoadedMonLevel]

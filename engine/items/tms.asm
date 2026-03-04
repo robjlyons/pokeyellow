@@ -30,10 +30,29 @@ CanLearnTM:
 ; HMs start at 51
 TMToMove:
 	ld a, [wTempTMHM]
-	dec a
+	dec a                   ; A = 0-indexed slot (0-49 = TMs, 50+ = HMs)
+	ld c, a                 ; save index
+	; If RANDOMISE is on and this is a TM (not HM), use sNuzlockTMMoves
+	ld a, [wNuzloptionsRandomise]
+	and a
+	jr z, .useOriginal
+	ld a, c
+	cp NUM_TMS              ; index < NUM_TMS means TM01..TM50
+	jr nc, .useOriginal     ; HM: always use original table
+	; Read randomised move from sNuzlockTMMoves[c]
+	ld a, BANK(sNuzlockTMMoves)
+	call OpenSRAM
+	ld hl, sNuzlockTMMoves
+	ld d, 0
+	ld e, c
+	add hl, de
+	ld a, [hl]
+	call CloseSRAM          ; preserves A
+	ld [wTempTMHM], a
+	ret
+.useOriginal:
 	ld hl, TechnicalMachines
-	ld b, $0
-	ld c, a
+	ld b, 0
 	add hl, bc
 	ld a, [hl]
 	ld [wTempTMHM], a
