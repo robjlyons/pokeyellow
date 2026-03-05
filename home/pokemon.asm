@@ -433,8 +433,8 @@ GetMonHeader::
 	ld de, wMonHeader
 	ld bc, BASE_DATA_SIZE
 	call CopyData
-	; If RANDOMISE, overlay permuted stats (bytes 1-9) over the header.
-	; Sprite bytes (10-14) remain from the original species above.
+	; If RANDOMISE, overlay permuted stats + catch/EXP (bytes 1-5, 8-9).
+	; Types (bytes 6-7) and sprite bytes (10+) remain from the original species.
 	ld a, [wNuzloptionsRandomise]
 	and a
 	jr z, .done
