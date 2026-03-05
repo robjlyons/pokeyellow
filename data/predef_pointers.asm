@@ -109,4 +109,4 @@ PredefPointers::
 	add_predef DrawHP2
 	add_predef DisplayElevatorFloorMenu
 	add_predef OaksAideScript
-	add_predef RemapPokedexNum
+	add_predef ApplyBasePermutation
