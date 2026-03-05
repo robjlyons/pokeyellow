@@ -1016,8 +1016,21 @@ OaksLabRivalTakesText5:
 
 OaksLabPlayerReceivedMonText:
 	text_asm
+	; Determine starter species: use randomised species if RANDOMISE is on,
+	; otherwise fall back to Pikachu.
 	ld a, STARTER_PIKACHU
-	ld [wPlayerStarter], a
+	ld b, a                     ; B = default species (Pikachu)
+	ld a, [wNuzloptionsRandomise]
+	and a
+	jr z, .gotStarterSpecies
+	ld a, BANK(sNuzlockStarterSpecies)
+	call OpenSRAM
+	ld a, [sNuzlockStarterSpecies]
+	ld b, a                     ; B = randomised species
+	call CloseSRAM
+.gotStarterSpecies:
+	ld a, b
+	ld [wPlayerStarter], a      ; save for reuse after text calls clobber registers
 	ld [wNamedObjectIndex], a
 	call GetMonName
 	ld a, $1
@@ -1030,7 +1043,7 @@ OaksLabPlayerReceivedMonText:
 	ld [wMonDataLocation], a
 	ld a, 5
 	ld [wCurEnemyLevel], a
-	ld a, STARTER_PIKACHU
+	ld a, [wPlayerStarter]      ; reload species (B was clobbered by text calls)
 	ld [wPokedexNum], a
 	ld [wCurPartySpecies], a
 	call AddPartyMon

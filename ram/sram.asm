@@ -15,7 +15,7 @@ sNuzlockData::
 sNuzlockBasePerm::       ds 151  ; dex slot i -> use BaseStats of species sNuzlockBasePerm[i]
 sNuzlockEvoPerm::        ds 151  ; species i -> evolves into species sNuzlockEvoPerm[i]
 sNuzlockMovePerm::       ds 165  ; move i -> remapped to move sNuzlockMovePerm[i] (1-based)
-sNuzlockWild1to1::       ds 256  ; map_id -> species (0 = no override for this map)
+sNuzlockWild1to1::       ds 256  ; map_id -> species (kept for save-compat; lookup now uses Random)
 sNuzlockTMMoves::        ds 50   ; TM01..TM50 move assignments (move IDs, 1-based)
 sNuzlockStarterSpecies:: db      ; starter species for this run
 sNuzlockStaticSpecies::  ds 14   ; static encounter species (indexed by STATIC_INDEX_* constants)

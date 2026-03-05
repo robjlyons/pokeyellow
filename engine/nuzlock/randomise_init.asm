@@ -45,9 +45,11 @@ InitRandomiserTables::
 	ld [hl], STRUGGLE       ; index 164 => STRUGGLE stays as STRUGGLE
 
 	; ---------------------------------------------------------------
-	; sNuzlockWild1to1: one random species per map (all 256 map slots)
-	; The wild encounter hook reads sNuzlockWild1to1[wCurMap] to force
-	; exactly one species per area for the whole run.
+	; sNuzlockWild1to1: kept for save-file compatibility.
+	; Wild encounter species are now drawn fresh from RandomSpecies on
+	; each encounter (see wild_encounters.asm), so this table is no
+	; longer read — but it is still filled so that old saves don't see
+	; uninitialised bytes if the code is ever reverted.
 	; ---------------------------------------------------------------
 	ld hl, sNuzlockWild1to1
 	ld b, 0                 ; b=0 with dec b loop => 256 iterations
