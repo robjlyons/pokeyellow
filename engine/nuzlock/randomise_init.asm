@@ -122,12 +122,14 @@ InitRandomiserTables::
 
 ; ---------------------------------------------------------------
 ; ApplyBasePermutation: overlay stats bytes from the permuted species
-; into wMonHeader, leaving sprite bytes (offsets 10-14) intact.
+; into wMonHeader, leaving types and sprite bytes intact.
 ;
 ; GetMonHeader has already copied the ORIGINAL species' full BaseStats
-; (28 bytes) into wMonHeader, so sprites are correct.  This predef
-; then overwrites only wMonHeader[1..9] (HP, Atk, Def, Spd, Spc,
-; Type1, Type2, CatchRate, BaseEXP) with the permuted species' values.
+; (28 bytes) into wMonHeader, so types and sprites are correct.  This
+; predef overwrites only the 5 base stats (HP, Atk, Def, Spd, Spc) and
+; CatchRate + BaseEXP with the permuted species' values.  Type1 and
+; Type2 (bytes 6-7) are intentionally skipped so the displayed type
+; always matches the original species.
 ;
 ; Input:  wPokedexNum = original national dex number.
 ; Destroys A, BC, DE, HL.
@@ -149,10 +151,17 @@ ApplyBasePermutation::
 	ld bc, BASE_DATA_SIZE
 	ld hl, BaseStats
 	call AddNTimes          ; HL → BaseStats[permuted - 1]
-	; Copy bytes 1-9 only (skip byte 0 = dex no, stop before byte 10 = sprite dim)
+	; Copy bytes 1-5 (HP, Atk, Def, Spd, Spc) — skip byte 0 = dex no
 	inc hl                  ; skip BASE_DEX_NO
-	ld de, wMonHeader + 1   ; wMonHBaseHP — first stat byte
-	ld bc, 9
+	ld de, wMonHBaseStats   ; wMonHBaseHP — first stat byte
+	ld bc, NUM_STATS        ; 5 bytes
+	call CopyData
+	; HL now points at permuted Type1 — skip Type1 + Type2 to preserve original types
+	inc hl
+	inc hl
+	; Copy bytes 8-9: CatchRate + BaseEXP
+	ld de, wMonHCatchRate
+	ld bc, 2
 	call CopyData
 	ret
 
