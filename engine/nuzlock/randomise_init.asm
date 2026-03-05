@@ -163,6 +163,13 @@ ApplyBasePermutation::
 	ld de, wMonHCatchRate
 	ld bc, 2
 	call CopyData
+	; Clamp catch rate to a minimum so all wild Pokemon are easier to catch
+	ld a, [wMonHCatchRate]
+	cp 100
+	jr nc, .catchRateOk         ; already >= 100 — keep it
+	ld a, 100
+	ld [wMonHCatchRate], a
+.catchRateOk:
 	ret
 
 
