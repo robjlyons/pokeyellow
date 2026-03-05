@@ -77,14 +77,25 @@ TryDoWildEncounter:
 	ld a, [hl]
 	ld [wCurPartySpecies], a
 	ld [wEnemyMonSpecies2], a
-	; If RANDOMISE is on, replace the encounter species with a freshly
-	; drawn random species.  Using a per-encounter RNG call gives full
-	; slot variety (different species every step) without needing a
-	; large SRAM table.  C (slot byte offset) is no longer needed here.
+	; If RANDOMISE is on, replace the encounter species with a random
+	; one from sNuzlockWild1to1 (256 pre-rolled species, filled at
+	; new-game time).  We index by hRandomAdd (0-255), a live RNG byte
+	; updated each step, for per-encounter variety.
+	; A SRAM read is used instead of callfar RandomSpecies because
+	; Bankswitch (used by callfar) restores A from the stack after the
+	; call, overwriting any return value before we can save it.
 	ld a, [wNuzloptionsRandomise]
 	and a
 	jr z, .noWildRemap
-	callfar RandomSpecies       ; A = random internal species ID
+	ldh a, [hRandomAdd]
+	ld e, a
+	ld d, 0
+	ld a, BANK(sNuzlockWild1to1)
+	call OpenSRAM               ; sets SRAM bank; preserves A (but we don't need it)
+	ld hl, sNuzlockWild1to1
+	add hl, de
+	ld a, [hl]
+	call CloseSRAM              ; preserves A
 	ld [wCurPartySpecies], a
 	ld [wEnemyMonSpecies2], a
 .noWildRemap:
