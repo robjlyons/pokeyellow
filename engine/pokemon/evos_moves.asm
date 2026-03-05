@@ -580,6 +580,29 @@ WriteMonMoves:
 	pop hl
 .writeMoveToSlot2
 	ld a, [hl]
+	; If RANDOMISE is on, remap move via sNuzlockMovePerm table
+	push hl
+	push de
+	ld b, a                     ; save original move ID
+	ld a, [wNuzloptionsRandomise]
+	and a
+	jp z, .writeMoveNoRemap     ; RANDOMISE off — keep original
+	ld a, b
+	dec a                       ; 0-indexed
+	ld d, 0
+	ld e, a
+	ld hl, sNuzlockMovePerm
+	add hl, de                  ; HL → &sNuzlockMovePerm[move - 1]
+	ld a, BANK(sNuzlockMovePerm)
+	push hl
+	call OpenSRAM
+	pop hl
+	ld b, [hl]                  ; B = permuted move ID
+	call CloseSRAM
+.writeMoveNoRemap
+	pop de
+	pop hl
+	ld a, b
 	ld [de], a
 	ld a, [wLearningMovesFromDayCare]
 	and a
@@ -602,7 +625,7 @@ WriteMonMoves:
 	pop hl
 	ld [hl], a
 	pop hl
-	jr .nextMove
+	jp .nextMove
 
 .done
 	pop bc
