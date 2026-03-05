@@ -77,19 +77,14 @@ TryDoWildEncounter:
 	ld a, [hl]
 	ld [wCurPartySpecies], a
 	ld [wEnemyMonSpecies2], a
-	; If RANDOMISE is on, force one species per area from sNuzlockWild1to1
+	; If RANDOMISE is on, replace the encounter species with a freshly
+	; drawn random species.  Using a per-encounter RNG call gives full
+	; slot variety (different species every step) without needing a
+	; large SRAM table.  C (slot byte offset) is no longer needed here.
 	ld a, [wNuzloptionsRandomise]
 	and a
 	jr z, .noWildRemap
-	ld a, BANK(sNuzlockWild1to1)
-	call OpenSRAM
-	ld a, [wCurMap]
-	ld hl, sNuzlockWild1to1
-	ld d, 0
-	ld e, a
-	add hl, de              ; HL = &sNuzlockWild1to1[wCurMap]
-	ld a, [hl]              ; A = internal species ID
-	call CloseSRAM          ; preserves A
+	callfar RandomSpecies       ; A = random internal species ID
 	ld [wCurPartySpecies], a
 	ld [wEnemyMonSpecies2], a
 .noWildRemap:
