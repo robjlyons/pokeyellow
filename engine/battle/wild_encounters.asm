@@ -77,24 +77,22 @@ TryDoWildEncounter:
 	ld a, [hl]
 	ld [wCurPartySpecies], a
 	ld [wEnemyMonSpecies2], a
-	; If RANDOMISE is on, replace the encounter species with a random
-	; one from sNuzlockWild1to1 (256 pre-rolled species, filled at
-	; new-game time).  We index by hRandomAdd (0-255), a live RNG byte
-	; updated each step, for per-encounter variety.
-	; A SRAM read is used instead of callfar RandomSpecies because
-	; Bankswitch (used by callfar) restores A from the stack after the
-	; call, overwriting any return value before we can save it.
+	; If RANDOMISE is on, replace the encounter species using the 1:1
+	; remap table built at new-game time.  sNuzlockWild1to1 is indexed
+	; by the original internal species ID so each species maps to the
+	; same replacement for the whole run — e.g. all Pidgey on Route 1
+	; become the same species, different from the Rattata replacement.
 	ld a, [wNuzloptionsRandomise]
 	and a
 	jr z, .noWildRemap
-	ldh a, [hRandomAdd]
+	ld a, [wCurPartySpecies]    ; original internal species ID
 	ld e, a
 	ld d, 0
 	ld a, BANK(sNuzlockWild1to1)
-	call OpenSRAM               ; sets SRAM bank; preserves A (but we don't need it)
+	call OpenSRAM               ; sets SRAM bank
 	ld hl, sNuzlockWild1to1
 	add hl, de
-	ld a, [hl]
+	ld a, [hl]                  ; replacement species for this original species
 	call CloseSRAM              ; preserves A
 	ld [wCurPartySpecies], a
 	ld [wEnemyMonSpecies2], a
