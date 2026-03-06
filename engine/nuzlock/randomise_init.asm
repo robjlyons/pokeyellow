@@ -69,7 +69,8 @@ InitRandomiserTables::
 	ld hl, ValidSpeciesTable
 	add hl, de
 	ld a, [hl]              ; A = original internal species ID
-	push af                 ; save it
+	push bc                 ; save B=counter, C=index; repurpose C for orig ID
+	ld c, a                 ; C = original internal ID
 	; permuted nat dex (0-indexed) = sNuzlockBasePerm[i] - 1
 	ld hl, sNuzlockBasePerm
 	add hl, de              ; DE still = (0, i)
@@ -80,13 +81,13 @@ InitRandomiserTables::
 	ld hl, ValidSpeciesTable
 	add hl, de
 	ld a, [hl]              ; A = replacement internal species ID
-	ld d, a                 ; save replacement
 	; sNuzlockWild1to1[original_internal_id] = replacement
-	pop af                  ; A = original internal species ID
-	ld e, a
+	ld d, 0
+	ld e, c                 ; DE = (0, original_internal_id); D is now 0 (not replacement)
 	ld hl, sNuzlockWild1to1
-	add hl, de
-	ld [hl], d              ; store replacement
+	add hl, de              ; HL = &sNuzlockWild1to1[original_id]
+	ld [hl], a              ; store replacement
+	pop bc                  ; restore B=counter, C=index i
 	inc c
 	dec b
 	jr nz, .wildRemapLoop
