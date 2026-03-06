@@ -45,19 +45,51 @@ InitRandomiserTables::
 	ld [hl], STRUGGLE       ; index 164 => STRUGGLE stays as STRUGGLE
 
 	; ---------------------------------------------------------------
-	; sNuzlockWild1to1: kept for save-file compatibility.
-	; Wild encounter species are now drawn fresh from RandomSpecies on
-	; each encounter (see wild_encounters.asm), so this table is no
-	; longer read — but it is still filled so that old saves don't see
-	; uninitialised bytes if the code is ever reverted.
+	; sNuzlockWild1to1: 256-byte species remap table.
+	; sNuzlockWild1to1[original_internal_id] = replacement_internal_id
+	; Derived from sNuzlockBasePerm (already filled above) so that
+	; each original species maps consistently to the same replacement
+	; for the whole run — e.g. Route 1 Pidgey always becomes Doduo.
 	; ---------------------------------------------------------------
+	; Clear all 256 bytes to 0
 	ld hl, sNuzlockWild1to1
-	ld b, 0                 ; b=0 with dec b loop => 256 iterations
-.wildLoop:
-	call RandomSpecies      ; A = random internal species ID
+	ld b, 0                 ; b=0 → 256 iterations (dec wraps 0→255)
+	xor a
+.clearWild:
 	ld [hli], a
 	dec b
-	jr nz, .wildLoop
+	jr nz, .clearWild
+	; For i = 0..150: ValidSpeciesTable[i] → ValidSpeciesTable[sNuzlockBasePerm[i]-1]
+	ld b, 151               ; 151 valid species
+	ld c, 0                 ; index i (0..150)
+.wildRemapLoop:
+	ld d, 0
+	ld e, c                 ; DE = (0, i)
+	; original internal ID = ValidSpeciesTable[i]
+	ld hl, ValidSpeciesTable
+	add hl, de
+	ld a, [hl]              ; A = original internal species ID
+	push af                 ; save it
+	; permuted nat dex (0-indexed) = sNuzlockBasePerm[i] - 1
+	ld hl, sNuzlockBasePerm
+	add hl, de              ; DE still = (0, i)
+	ld a, [hl]              ; A = permuted nat dex (1-based)
+	dec a                   ; 0-indexed
+	ld e, a
+	; replacement internal ID = ValidSpeciesTable[permuted_nat_dex - 1]
+	ld hl, ValidSpeciesTable
+	add hl, de
+	ld a, [hl]              ; A = replacement internal species ID
+	ld d, a                 ; save replacement
+	; sNuzlockWild1to1[original_internal_id] = replacement
+	pop af                  ; A = original internal species ID
+	ld e, a
+	ld hl, sNuzlockWild1to1
+	add hl, de
+	ld [hl], d              ; store replacement
+	inc c
+	dec b
+	jr nz, .wildRemapLoop
 
 	; ---------------------------------------------------------------
 	; sNuzlockTMMoves: 50 random move IDs (1..164) for TM01-TM50
